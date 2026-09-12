@@ -58,6 +58,8 @@ import {
   BatteryCharging,
   Coins,
   ChevronRight,
+  Info,
+  HelpCircle,
 } from 'lucide-react'
 
 type NavigationTab = 'unified' | 'sell_studio' | 'invoices' | 'blockchain'
@@ -109,12 +111,14 @@ export default function UnifiedPlatformPage() {
 
   // ── Prosumer / Seller Studio State ──────────────────────────────────────────
   const [isSellerModalOpen, setIsSellerModalOpen] = useState(false)
-  const [sellQty, setSellQty] = useState('10.0')
+  const [sellQty, setSellQty] = useState('8.0')
   const [sellPrice, setSellPrice] = useState('4.20')
   const [sellSlot, setSellSlot] = useState<'immediate' | 'solar_peak' | 'evening_battery'>('solar_peak')
+  const [includeBatteryReserve, setIncludeBatteryReserve] = useState(true)
   const [autoPilotListing, setAutoPilotListing] = useState(false)
   const [submittingOrder, setSubmittingOrder] = useState(false)
   const [sellPublishSuccess, setSellPublishSuccess] = useState<string | null>(null)
+  const [sellValidationError, setSellValidationError] = useState<string | null>(null)
 
   // ── Modals: Invoice & Blockchain ────────────────────────────────────────────
   const [settlementModalData, setSettlementModalData] = useState<Settlement | null>(null)
@@ -430,9 +434,52 @@ export default function UnifiedPlatformPage() {
     setIsDisputeOpen(true)
   }
 
+  // ── Prosumer / Seller Energy Budget & Physics Calculations ──────────────────
+  const instantaneousSurplusKw = 3.40 // 4.20 kW PV generation - 0.80 kW home load
+  const batteryReserveKwh = 4.20 // 85% of 5.0 kWh storage pack
+
+  // Delivery window duration in hours
+  const slotHours = sellSlot === 'immediate' ? 1.0 : sellSlot === 'solar_peak' ? 4.0 : 3.0
+  // Direct solar energy produced during this commitment window (0 for night/evening)
+  const slotSolarEnergyKwh = sellSlot === 'evening_battery' ? 0 : parseFloat((instantaneousSurplusKw * slotHours).toFixed(2))
+  // Battery storage energy exportable
+  const slotBatteryEnergyKwh = (includeBatteryReserve || sellSlot === 'evening_battery') ? batteryReserveKwh : 0
+  // Total maximum energy available to sell (kWh)
+  const maxExportableKwh = parseFloat((slotSolarEnergyKwh + slotBatteryEnergyKwh).toFixed(1))
+
+  const handleSlotChange = (newSlot: 'immediate' | 'solar_peak' | 'evening_battery') => {
+    setSellSlot(newSlot)
+    const newSlotHours = newSlot === 'immediate' ? 1.0 : newSlot === 'solar_peak' ? 4.0 : 3.0
+    const newSolarKwh = newSlot === 'evening_battery' ? 0 : parseFloat((instantaneousSurplusKw * newSlotHours).toFixed(2))
+    const newBatteryKwh = (includeBatteryReserve || newSlot === 'evening_battery') ? batteryReserveKwh : 0
+    const newMax = parseFloat((newSolarKwh + newBatteryKwh).toFixed(1))
+    if (parseFloat(sellQty) > newMax) {
+      setSellQty(newMax.toString())
+    }
+    setSellValidationError(null)
+  }
+
   // ── Seller: Post Solar Listing ──────────────────────────────────────────────
   const handlePostSellOrder = async (e: React.FormEvent) => {
     e.preventDefault()
+    setSellValidationError(null)
+    const qty = parseFloat(sellQty)
+    if (isNaN(qty) || qty <= 0) {
+      setSellValidationError('Please enter a valid energy quantity to sell.')
+      return
+    }
+    if (qty > maxExportableKwh) {
+      setSellValidationError(
+        `Cannot sell ${qty} kWh: exceeds safe physical export limit (${maxExportableKwh} kWh) for the selected ${
+          sellSlot === 'immediate'
+            ? 'Immediate (1-hour)'
+            : sellSlot === 'solar_peak'
+            ? 'Solar Peak (4-hour)'
+            : 'Evening Peak'
+        } delivery window.`
+      )
+      return
+    }
     setSubmittingOrder(true)
     setSellPublishSuccess(null)
     try {
@@ -440,12 +487,12 @@ export default function UnifiedPlatformPage() {
       const interval = `${now.toISOString().slice(0, 10)}T${now.toTimeString().slice(0, 5)}`
       await createOrder({
         side: 'sell',
-        quantity_kwh: parseFloat(sellQty),
+        quantity_kwh: qty,
         min_price: parseFloat(sellPrice),
         interval,
       })
       setIsSellerModalOpen(false)
-      setSellPublishSuccess(`Successfully listed ${sellQty} kWh solar generation at ₹${sellPrice}/kWh to ${selectedFeeder}!`)
+      setSellPublishSuccess(`Successfully listed ${qty} kWh solar generation at ₹${sellPrice}/kWh to ${selectedFeeder}!`)
       await loadData()
       setTimeout(() => setSellPublishSuccess(null), 6000)
     } catch (err) {
@@ -1598,10 +1645,10 @@ export default function UnifiedPlatformPage() {
 
                     <div className="p-3.5 rounded-2xl bg-white border border-emerald-300 shadow-xs ring-2 ring-emerald-500/10">
                       <span className="text-emerald-700 block text-[11px] mb-1 font-bold flex items-center gap-1">
-                        <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" /> Export Surplus
+                        <Zap className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" /> Net Surplus Rate
                       </span>
                       <span className="text-xl font-black font-mono text-emerald-700">+3.40 kW</span>
-                      <span className="text-[10px] text-emerald-800 font-bold block mt-0.5">~14.5 kWh Available</span>
+                      <span className="text-[10px] text-emerald-800 font-bold block mt-0.5">Yields 3.40 kWh / hour</span>
                     </div>
 
                     <div className="p-3.5 rounded-2xl bg-white border border-blue-200 shadow-xs">
@@ -1625,7 +1672,33 @@ export default function UnifiedPlatformPage() {
                     </div>
                     <div className="flex justify-between text-[10px] text-slate-400 font-mono pt-0.5">
                       <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-slate-400" /> Home Load: 0.8 kW</span>
-                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> P2P Neighborhood Export: 3.4 kW</span>
+                      <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-emerald-500" /> P2P Neighborhood Export: 3.4 kW rate</span>
+                    </div>
+                  </div>
+
+                  {/* Physics & Energy Budget Explanation Banner */}
+                  <div className="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200 text-emerald-950 text-xs space-y-1.5">
+                    <div className="flex items-center gap-1.5 font-bold text-emerald-900">
+                      <Info className="w-4 h-4 text-emerald-700 flex-shrink-0" />
+                      <span>Understanding kW (Power Rate) vs kWh (Energy Volume Sold)</span>
+                    </div>
+                    <p className="text-[11px] text-emerald-900 leading-relaxed">
+                      <strong>+3.40 kW is your instantaneous power rate</strong> (speed of electricity generation). 
+                      Energy sold is cumulative over your delivery window: 
+                      <code className="bg-white/80 px-1.5 py-0.5 rounded font-mono font-bold text-emerald-800 ml-1">
+                        Energy (kWh) = Surplus (3.40 kW) × Hours + Battery Reserve
+                      </code>.
+                    </p>
+                    <div className="flex flex-wrap items-center gap-2 pt-1 text-[10px] font-mono">
+                      <span className="bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800">
+                        ⚡ 1h Immediate: 3.40 kWh
+                      </span>
+                      <span className="bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-emerald-800 font-bold">
+                        ☀️ 4h Solar Peak: 13.60 kWh (Easily sells 9.0 kWh!)
+                      </span>
+                      <span className="bg-white px-2 py-0.5 rounded-md border border-emerald-200 text-blue-700 font-bold">
+                        🔋 +4.20 kWh Battery
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -1655,23 +1728,36 @@ export default function UnifiedPlatformPage() {
                     </div>
                   )}
 
-                  {/* SECTION 1: VOLUME SELECTOR */}
+                  {/* SECTION 1: VOLUME SELECTOR WITH DYNAMIC PHYSICS ENFORCEMENT */}
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs font-bold text-slate-700">1. Solar Energy Volume to Sell (kWh)</label>
-                      <span className="text-xs font-mono font-bold text-emerald-700">
-                        Max Surplus: 14.5 kWh
-                      </span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                      <div>
+                        <label className="text-xs font-bold text-slate-700">1. Solar Energy Volume to Sell (kWh)</label>
+                        <span className="text-[11px] text-slate-400 block">
+                          Current commitment window: {slotHours}h ({sellSlot === 'immediate' ? 'Immediate' : sellSlot === 'solar_peak' ? 'Solar Peak' : 'Evening Peak'})
+                        </span>
+                      </div>
+                      <div className="sm:text-right">
+                        <span className="text-xs font-mono font-bold text-emerald-700 block">
+                          Max Safe Export: {maxExportableKwh} kWh
+                        </span>
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          ({slotSolarEnergyKwh} kWh PV + {slotBatteryEnergyKwh} kWh Battery)
+                        </span>
+                      </div>
                     </div>
 
                     <div className="flex items-center gap-4">
                       <input
                         type="range"
-                        min="1"
-                        max="25"
+                        min="0.5"
+                        max={maxExportableKwh}
                         step="0.5"
-                        value={sellQty}
-                        onChange={(e) => setSellQty(e.target.value)}
+                        value={Math.min(sellerKwh, maxExportableKwh)}
+                        onChange={(e) => {
+                          setSellQty(e.target.value)
+                          setSellValidationError(null)
+                        }}
                         className="flex-1 accent-emerald-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
                       />
                       <div className="w-28 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-center font-bold text-slate-900 text-sm">
@@ -1679,18 +1765,63 @@ export default function UnifiedPlatformPage() {
                       </div>
                     </div>
 
-                    {/* Quick Presets */}
+                    {/* Physics & Validation Insight Callout */}
+                    {sellerKwh > maxExportableKwh ? (
+                      <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 font-medium">
+                        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                        <span>
+                          Exceeds available generation! In this {slotHours}h window, max exportable is {maxExportableKwh} kWh.
+                        </span>
+                      </div>
+                    ) : sellerKwh >= 9.0 ? (
+                      <div className="p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 text-xs flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-blue-600 shrink-0" />
+                        <span>
+                          <strong>Why 9.0 kWh is achievable:</strong> In your 4-hour Solar Peak window, 3.40 kW surplus produces 13.6 kWh. Delivering 9.0 kWh requires an average export rate of just 2.25 kW (leaving +1.15 kW margin).
+                        </span>
+                      </div>
+                    ) : null}
+
+                    {/* Battery Storage Dispatch Toggle */}
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs">
+                      <label className="flex items-center gap-2 text-slate-700 font-medium cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={includeBatteryReserve}
+                          onChange={(e) => {
+                            const checked = e.target.checked
+                            setIncludeBatteryReserve(checked)
+                            const newMax = parseFloat((slotSolarEnergyKwh + (checked ? batteryReserveKwh : 0)).toFixed(1))
+                            if (parseFloat(sellQty) > newMax) {
+                              setSellQty(newMax.toString())
+                            }
+                            setSellValidationError(null)
+                          }}
+                          className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                        />
+                        <span>Include Battery Storage Reserve (+{batteryReserveKwh} kWh @ 85% SoC)</span>
+                      </label>
+                      <span className="text-[10px] font-mono text-blue-700 bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                        BESS Enabled
+                      </span>
+                    </div>
+
+                    {/* Dynamic Presets tailored to maximum safe limit */}
                     <div className="flex flex-wrap gap-2">
                       {[
-                        { label: '5 kWh', val: '5.0' },
-                        { label: '10 kWh', val: '10.0' },
-                        { label: '14.5 kWh (Full Surplus)', val: '14.5' },
-                        { label: '20 kWh (+Battery)', val: '20.0' },
+                        ...(maxExportableKwh >= 3.4 ? [{ label: '3.4 kWh (1h Solar)', val: '3.4' }] : []),
+                        ...(maxExportableKwh >= 5.0 ? [{ label: '5.0 kWh', val: '5.0' }] : []),
+                        ...(maxExportableKwh >= 9.0 ? [{ label: '9.0 kWh (Peak Window)', val: '9.0' }] : []),
+                        ...(maxExportableKwh >= 13.6 && sellSlot === 'solar_peak' ? [{ label: '13.6 kWh (Full 4h PV)', val: '13.6' }] : []),
+                        { label: `${maxExportableKwh} kWh (Max Available)`, val: maxExportableKwh.toString() },
                       ].map((p) => (
                         <button
                           key={p.val}
                           type="button"
-                          onClick={() => setSellQty(p.val)}
+                          onClick={() => {
+                            setSellQty(p.val)
+                            setSellValidationError(null)
+                          }}
                           className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                             sellQty === p.val
                               ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
@@ -1825,7 +1956,26 @@ export default function UnifiedPlatformPage() {
 
                       <button
                         type="button"
-                        onClick={() => setSellSlot('evening_battery')}
+                        onClick={() => handleSlotChange('solar_peak')}
+                        className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                          sellSlot === 'solar_peak'
+                            ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
+                            : 'border-slate-200 bg-white hover:border-slate-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-1.5 mb-1 text-amber-600 font-bold text-xs">
+                          <Sun className="w-3.5 h-3.5" /> Solar Peak Window
+                        </div>
+                        <span className="text-[11px] text-slate-600 block font-mono">11:00 AM – 03:00 PM (4 hrs)</span>
+                        <span className="text-[10px] text-emerald-700 font-bold block mt-0.5">
+                          Up to 17.8 kWh (13.6 PV + 4.2 BESS)
+                        </span>
+                        <span className="text-[10px] text-slate-400">Continuous PV rooftop export</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleSlotChange('evening_battery')}
                         className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                           sellSlot === 'evening_battery'
                             ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
@@ -1835,13 +1985,16 @@ export default function UnifiedPlatformPage() {
                         <div className="flex items-center gap-1.5 mb-1 text-purple-600 font-bold text-xs">
                           <BatteryCharging className="w-3.5 h-3.5" /> Evening Peak Shaving
                         </div>
-                        <span className="text-[11px] text-slate-600 block font-mono">06:00 PM – 09:00 PM</span>
-                        <span className="text-[10px] text-slate-400">Discharges stored battery power</span>
+                        <span className="text-[11px] text-slate-600 block font-mono">06:00 PM – 09:00 PM (3 hrs)</span>
+                        <span className="text-[10px] text-purple-700 font-bold block mt-0.5">
+                          Up to 4.2 kWh (Battery Only)
+                        </span>
+                        <span className="text-[10px] text-slate-400">Zero solar generation at night</span>
                       </button>
 
                       <button
                         type="button"
-                        onClick={() => setSellSlot('immediate')}
+                        onClick={() => handleSlotChange('immediate')}
                         className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                           sellSlot === 'immediate'
                             ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
@@ -1851,7 +2004,10 @@ export default function UnifiedPlatformPage() {
                         <div className="flex items-center gap-1.5 mb-1 text-blue-600 font-bold text-xs">
                           <Zap className="w-3.5 h-3.5" /> Immediate Dispatch
                         </div>
-                        <span className="text-[11px] text-slate-600 block font-mono">Real-time Injection</span>
+                        <span className="text-[11px] text-slate-600 block font-mono">Real-time (Next 1 hr)</span>
+                        <span className="text-[10px] text-blue-700 font-bold block mt-0.5">
+                          Up to 7.6 kWh (3.4 PV + 4.2 BESS)
+                        </span>
                         <span className="text-[10px] text-slate-400">Instant order book matching</span>
                       </button>
                     </div>
@@ -1879,10 +2035,18 @@ export default function UnifiedPlatformPage() {
                     </button>
                   </div>
 
+                  {/* Inline Validation Error Banner */}
+                  {sellValidationError && (
+                    <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2 font-medium animate-fade-in">
+                      <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+                      <span>{sellValidationError}</span>
+                    </div>
+                  )}
+
                   {/* SUBMIT BUTTON */}
                   <button
                     type="submit"
-                    disabled={submittingOrder || sellerKwh <= 0}
+                    disabled={submittingOrder || sellerKwh <= 0 || sellerKwh > maxExportableKwh}
                     className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
                   >
                     {submittingOrder ? (
@@ -2272,16 +2436,28 @@ export default function UnifiedPlatformPage() {
 
             <form onSubmit={handlePostSellOrder} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold text-slate-700 mb-1">Energy to Sell (kWh)</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="font-bold text-slate-700">Energy to Sell (kWh)</label>
+                  <span className="font-mono text-[11px] font-bold text-emerald-700">
+                    Max Safe: {maxExportableKwh} kWh
+                  </span>
+                </div>
                 <input
                   type="number"
                   step="0.5"
                   min="0.5"
+                  max={maxExportableKwh}
                   value={sellQty}
-                  onChange={(e) => setSellQty(e.target.value)}
+                  onChange={(e) => {
+                    setSellQty(e.target.value)
+                    setSellValidationError(null)
+                  }}
                   required
                   className="w-full px-3 py-2 rounded-xl bg-slate-50 border border-slate-200 font-mono font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
                 />
+                <span className="text-[10px] text-slate-500 mt-1 block">
+                  Based on current +{instantaneousSurplusKw} kW surplus rate over your {slotHours}h window ({slotSolarEnergyKwh} kWh solar + {slotBatteryEnergyKwh} kWh battery reserve).
+                </span>
               </div>
 
               <div>
@@ -2301,13 +2477,33 @@ export default function UnifiedPlatformPage() {
                 </span>
               </div>
 
+              {sellValidationError && (
+                <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-[11px] font-medium flex items-center gap-2">
+                  <AlertTriangle className="w-3.5 h-3.5 text-rose-600 shrink-0" />
+                  <span>{sellValidationError}</span>
+                </div>
+              )}
+
               <button
                 type="submit"
-                disabled={submittingOrder}
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
+                disabled={submittingOrder || sellerKwh <= 0 || sellerKwh > maxExportableKwh}
+                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold text-xs shadow-xs transition-colors cursor-pointer"
               >
-                {submittingOrder ? 'Publishing...' : 'Publish Solar Listing to Grid'}
+                {submittingOrder ? 'Publishing...' : `Publish ${sellerKwh} kWh Solar Listing to Grid`}
               </button>
+
+              <div className="text-center pt-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsSellerModalOpen(false)
+                    setActiveTab('sell_studio')
+                  }}
+                  className="text-emerald-700 hover:text-emerald-800 text-[11px] font-bold underline cursor-pointer"
+                >
+                  Open Full Prosumer Solar Studio (with Inverter Telemetry & BESS Controls) →
+                </button>
+              </div>
             </form>
           </div>
         </div>
