@@ -17,11 +17,13 @@ env/
 *.sqlite
 *.sqlite3
 
-# ── pytest / coverage ─────────────────────────────────────────────────────────
+# ── pytest / coverage / logs ──────────────────────────────────────────────────
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
+*.log
+
 
 # ── Alembic ───────────────────────────────────────────────────────────────────
 # Keep migrations tracked; ignore compiled caches only
