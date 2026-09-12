@@ -9,7 +9,7 @@ from sqlalchemy import select
 from database import get_db
 from models.grid_state import GridState
 from models.user import UserRole
-from schemas import GridStateResponse
+from schemas import GridStateResponse, InterOperatorHandshakeResponse, InterOperatorHandshakeRequest
 from auth import require_roles
 
 router = APIRouter(prefix="/api/grid", tags=["Grid"])
@@ -67,3 +67,55 @@ async def list_feeders(
         )
     )
     return result.scalars().all()
+
+
+@router.post("/inter-operator/handshake", response_model=InterOperatorHandshakeResponse)
+async def trigger_inter_operator_handshake(
+    req: InterOperatorHandshakeRequest,
+    current_user=Depends(require_roles(
+        UserRole.prosumer, UserRole.consumer, UserRole.discom_operator, UserRole.regulator
+    )),
+):
+    """
+    Execute inter-operator communication handshake when buyer and seller
+    are on different feeders/operators, or verify local operator mediation.
+    """
+    from services.inter_operator_service import perform_inter_operator_handshake
+    result = await perform_inter_operator_handshake(
+        buyer_feeder_id=req.buyer_feeder_id,
+        seller_feeder_id=req.seller_feeder_id,
+        quantity_kwh=req.quantity_kwh,
+        buyer_max_price=req.buyer_max_price or 5.0,
+        seller_min_price=req.seller_min_price or 4.0,
+    )
+    return result
+
+
+@router.get("/operators")
+async def list_grid_operators():
+    """List all registered substation grid operators and interconnecting tie-lines."""
+    from services.inter_operator_service import GRID_OPERATORS, TIE_LINES
+    tie_lines_list = [
+        {"from_feeder": k[0], "to_feeder": k[1], **v}
+        for k, v in TIE_LINES.items()
+    ]
+    return {
+        "operators": list(GRID_OPERATORS.values()),
+        "tie_lines": tie_lines_list,
+    }
+
+
+@router.get("/locations")
+async def list_participant_locations(
+    buyer_feeder: str = "FEEDER-02",
+    seller_feeder: str = "FEEDER-01",
+):
+    """Get physical geographic & electrical grid location metadata for buyer and seller."""
+    from services.inter_operator_service import get_participant_location, calculate_grid_distance, GRID_OPERATORS
+    return {
+        "buyer_location": get_participant_location("demo_consumer_01", buyer_feeder),
+        "seller_location": get_participant_location("demo_prosumer_01", seller_feeder),
+        "mediating_operator": GRID_OPERATORS.get(buyer_feeder, GRID_OPERATORS["FEEDER-01"]),
+        "distance_info": calculate_grid_distance(buyer_feeder, seller_feeder),
+    }
+

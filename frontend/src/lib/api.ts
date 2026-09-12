@@ -219,3 +219,90 @@ export const resolveDispute = (
     }),
   })
 
+// ── Inter-Operator Handshake & Location API ──────────────────────────────────
+export interface InterOperatorHandshakeResult {
+  handshake_id: string
+  is_cross_operator: boolean
+  status: string
+  reason?: string
+  median_clearing_price: number
+  buyer_operator: {
+    feeder_id: string
+    operator_id: string
+    operator_name: string
+    substation_name: string
+    zone: string
+    address: string
+    latitude: number
+    longitude: number
+    transformer_capacity_kw: number
+    base_wheeling_rate: number
+  }
+  seller_operator: {
+    feeder_id: string
+    operator_id: string
+    operator_name: string
+    substation_name: string
+    zone: string
+    address: string
+    latitude: number
+    longitude: number
+    transformer_capacity_kw: number
+    base_wheeling_rate: number
+  }
+  tie_line?: {
+    tie_line_id: string
+    capacity_kw: number
+    current_load_kw: number
+    transit_wheeling_fee: number
+    status: string
+    length_km: number
+  }
+  wheeling_charge_per_kwh?: number
+  clearance_token?: string
+  steps: {
+    step_num: number
+    title: string
+    status: string
+    timestamp: string
+    detail: string
+  }[]
+  distance_info: {
+    is_cross_operator: boolean
+    physical_distance_km: number
+    electrical_path: string
+    transit_loss_pct: number
+    wheeling_rate: number
+  }
+}
+
+export const triggerInterOperatorHandshake = (
+  buyer_feeder_id: string,
+  seller_feeder_id: string,
+  quantity_kwh: number,
+  buyer_max_price?: number,
+  seller_min_price?: number
+) =>
+  request<InterOperatorHandshakeResult>('/api/grid/inter-operator/handshake', {
+    method: 'POST',
+    body: JSON.stringify({
+      buyer_feeder_id,
+      seller_feeder_id,
+      quantity_kwh,
+      buyer_max_price,
+      seller_min_price,
+    }),
+  })
+
+export const getParticipantLocations = (
+  buyer_feeder = 'FEEDER-02',
+  seller_feeder = 'FEEDER-01'
+) =>
+  request<{
+    buyer_location: any
+    seller_location: any
+    mediating_operator: any
+    distance_info: any
+  }>(`/api/grid/locations?buyer_feeder=${buyer_feeder}&seller_feeder=${seller_feeder}`)
+
+

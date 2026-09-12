@@ -30,6 +30,8 @@ import BlockchainModal from '@/components/BlockchainModal'
 import CopilotDrawer from '@/components/CopilotDrawer'
 import DemandResponseModal from '@/components/DemandResponseModal'
 import DisputeResolutionModal from '@/components/DisputeResolutionModal'
+import InterOperatorTelemetry from '@/components/InterOperatorTelemetry'
+import GridLocationRadar from '@/components/GridLocationRadar'
 import {
   Zap,
   Sun,
@@ -60,6 +62,12 @@ import {
   ChevronRight,
   Info,
   HelpCircle,
+  MapPin,
+  Compass,
+  ArrowRightLeft,
+  Cable,
+  Navigation,
+  Radio,
 } from 'lucide-react'
 
 type NavigationTab = 'unified' | 'sell_studio' | 'invoices' | 'blockchain'
@@ -75,6 +83,10 @@ interface EnergyPackage {
   rating: number
   co2SavedKgPerKwh: number
   isCertified: boolean
+  location?: string
+  operatorName?: string
+  distanceKm?: number
+  coordinates?: string
   rawOrder?: Order
 }
 
@@ -292,6 +304,10 @@ export default function UnifiedPlatformPage() {
       rating: 4.9,
       co2SavedKgPerKwh: 0.85,
       isCertified: true,
+      location: 'Sector 14, Green Meadows Solar Colony',
+      operatorName: 'North DISCOM (Substation Alpha)',
+      distanceKm: 3.2,
+      coordinates: '28.5362° N, 77.3925° E',
     },
     {
       id: 'pkg-solar-02',
@@ -304,6 +320,10 @@ export default function UnifiedPlatformPage() {
       rating: 5.0,
       co2SavedKgPerKwh: 0.89,
       isCertified: true,
+      location: 'Sector 14 West, Community Array B',
+      operatorName: 'North DISCOM (Substation Alpha)',
+      distanceKm: 3.8,
+      coordinates: '28.5380° N, 77.3940° E',
     },
     {
       id: 'pkg-battery-01',
@@ -316,6 +336,10 @@ export default function UnifiedPlatformPage() {
       rating: 4.8,
       co2SavedKgPerKwh: 0.78,
       isCertified: true,
+      location: 'Sector 22, South Horizon Battery Hub',
+      operatorName: 'South DISCOM (Substation Beta)',
+      distanceKm: 0.8,
+      coordinates: '28.5635° N, 77.4140° E',
     },
     // Map in any actual user-submitted sell orders dynamically!
     ...orders
@@ -331,6 +355,10 @@ export default function UnifiedPlatformPage() {
         rating: 4.9,
         co2SavedKgPerKwh: 0.86,
         isCertified: true,
+        location: o.feeder_id === 'FEEDER-01' ? 'Sector 14, Prosumer Rooftop' : 'Sector 22, South Rooftop',
+        operatorName: o.feeder_id === 'FEEDER-01' ? 'North DISCOM (Substation Alpha)' : 'South DISCOM (Substation Beta)',
+        distanceKm: o.feeder_id === selectedFeeder ? 0.85 : 3.4,
+        coordinates: o.feeder_id === 'FEEDER-01' ? '28.5362° N, 77.3925° E' : '28.5635° N, 77.4140° E',
         rawOrder: o,
       })),
   ]
@@ -938,6 +966,17 @@ export default function UnifiedPlatformPage() {
                                 </div>
                               </div>
 
+                              {/* Physical Location Badge */}
+                              <div className="p-2 rounded-xl bg-slate-50 border border-slate-200/80 mb-3 flex items-center justify-between text-[11px]">
+                                <span className="text-slate-600 flex items-center gap-1.5">
+                                  <MapPin className="w-3.5 h-3.5 text-rose-500 shrink-0" />
+                                  <span className="truncate max-w-[170px] font-medium">{pkg.location || 'Sector 14 Solar Cluster'}</span>
+                                </span>
+                                <span className="font-mono text-[10px] font-bold text-slate-500 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                                  {pkg.distanceKm || 2.4} km
+                                </span>
+                              </div>
+
                               <div className="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded-lg mb-3 border border-slate-100 font-medium">
                                 <span className="text-amber-700 flex items-center gap-1">⚡ DR-Ready</span>
                                 <span className="text-slate-300">|</span>
@@ -961,7 +1000,7 @@ export default function UnifiedPlatformPage() {
 
                 {/* STEP 2: CONFIGURE UNITS & ESTIMATE BILL */}
                 {purchaseStep === 2 && selectedPackage && (
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-2xl mx-auto space-y-6 animate-fade-in">
+                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-3xl mx-auto space-y-6 animate-fade-in">
                     <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                       <div>
                         <span className="text-xs text-slate-500 block">Configuring Purchase From:</span>
@@ -977,6 +1016,56 @@ export default function UnifiedPlatformPage() {
                         Change Package
                       </button>
                     </div>
+
+                    {/* MEDIAN GRID OPERATOR GUARANTEE BANNER */}
+                    <div className="p-4 rounded-2xl bg-indigo-50/80 border border-indigo-200 flex items-start gap-3">
+                      <Shield className="w-5 h-5 text-indigo-600 shrink-0 mt-0.5" />
+                      <div className="space-y-1 text-xs">
+                        <span className="font-bold text-indigo-950 block">
+                          Regulated Tripartite Settlement: Grid Operator is the Median Counterparty
+                        </span>
+                        <p className="text-indigo-900 leading-relaxed text-[11px]">
+                          There is <strong>zero direct dealing</strong> between you and the seller. The <strong>DISCOM Substation Grid Operator</strong> serves as the central clearing median intermediary—clearing this transaction at the fair median rate of <strong>₹{selectedPackage.pricePerKwh.toFixed(2)}/kWh</strong>, stabilizing grid frequency, and ensuring automated on-bill settlement.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* GRID TOPOLOGY & PARTICIPANT GEOLOCATION */}
+                    <GridLocationRadar
+                      buyerLocation={{
+                        name: 'Consumer Residence (You)',
+                        address: 'Tower C, Apartment 402, Maple Heights, Sector 22',
+                        feeder_id: selectedFeeder,
+                        latitude: 28.5615,
+                        longitude: 77.4105,
+                        distance_to_substation_km: 0.22,
+                        grid_node: `NODE-${selectedFeeder}-C01`,
+                        load_profile: 'Domestic Smart Meter',
+                      }}
+                      sellerLocation={{
+                        name: selectedPackage.sellerName,
+                        address: selectedPackage.location || 'Sector 14, Green Meadows Solar Colony',
+                        feeder_id: selectedPackage.feederId,
+                        latitude: selectedPackage.feederId === 'FEEDER-01' ? 28.5362 : 28.5635,
+                        longitude: selectedPackage.feederId === 'FEEDER-01' ? 77.3925 : 77.4140,
+                        distance_to_substation_km: 0.35,
+                        grid_node: `NODE-${selectedPackage.feederId}-P01`,
+                        generation_source: selectedPackage.sourceType,
+                      }}
+                      mediatingOperatorName="DISCOM Substation Grid Operator"
+                      physicalDistanceKm={selectedPackage.distanceKm || (selectedPackage.feederId === selectedFeeder ? 0.85 : 3.4)}
+                      electricalPath={selectedPackage.feederId === selectedFeeder ? 'Intra-Feeder 415V Local Distribution Line' : 'Inter-Substation 33kV Trunk Tie-Line (TL-NORTH-SOUTH-33KV)'}
+                      isCrossOperator={selectedPackage.feederId !== selectedFeeder}
+                    />
+
+                    {/* INTER-OPERATOR COMMUNICATION TELEMETRY HANDSHAKE */}
+                    <InterOperatorTelemetry
+                      buyerFeeder={selectedFeeder}
+                      sellerFeeder={selectedPackage.feederId}
+                      quantityKwh={purchaseKwh}
+                      buyerMaxPrice={selectedPackage.pricePerKwh + 0.3}
+                      sellerMinPrice={selectedPackage.pricePerKwh - 0.3}
+                    />
 
                     {/* Quantity Input */}
                     <div>
@@ -1158,6 +1247,38 @@ export default function UnifiedPlatformPage() {
                       </button>
                     </div>
 
+                    {/* MEDIATED SETTLEMENT ARCHITECTURE CARD */}
+                    <div className="p-4 rounded-2xl bg-indigo-50/70 border border-indigo-200 text-xs space-y-2.5">
+                      <div className="flex items-center justify-between font-bold text-indigo-950">
+                        <span className="flex items-center gap-1.5">
+                          <Shield className="w-4 h-4 text-indigo-600" />
+                          Central Clearing Counterparty Settlement Route
+                        </span>
+                        <span className="text-[10px] text-indigo-800 bg-white px-2 py-0.5 rounded-md border border-indigo-200 font-mono font-bold">
+                          Zero Direct Peer Risk
+                        </span>
+                      </div>
+                      <div className="flex flex-col sm:flex-row items-center justify-between text-[11px] text-slate-700 bg-white p-3 rounded-xl border border-indigo-100 font-mono gap-2 text-center sm:text-left">
+                        <div>
+                          <span className="text-[10px] text-slate-400 block font-sans">Buyer Node</span>
+                          <span className="font-bold text-slate-900">Sector 22 ({selectedFeeder})</span>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-indigo-400 shrink-0 hidden sm:block" />
+                        <div className="bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200 text-center">
+                          <span className="text-[9px] text-indigo-800 font-bold block font-sans">DISCOM MEDIAN INTERMEDIARY</span>
+                          <span className="font-black text-indigo-950">₹{activePackagePrice.toFixed(2)}/kWh</span>
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-indigo-400 shrink-0 hidden sm:block" />
+                        <div>
+                          <span className="text-[10px] text-slate-400 block font-sans">Seller Node</span>
+                          <span className="font-bold text-slate-900">{selectedPackage?.location?.split(',')[0] || 'Sector 14'} ({selectedPackage?.feederId})</span>
+                        </div>
+                      </div>
+                      <p className="text-[11px] text-indigo-900 leading-tight">
+                        ⚡ Grid Operator mediates physical 11kV/33kV distribution, frequency balance, and executes billing debits/credits.
+                      </p>
+                    </div>
+
                     {/* Final Order Review */}
                     <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 text-xs font-mono">
                       <div className="flex justify-between text-slate-300">
@@ -1316,7 +1437,7 @@ export default function UnifiedPlatformPage() {
                         <tr>
                           <th className="p-3.5 font-bold">Listing</th>
                           <th className="p-3.5 font-bold">Seller Type</th>
-                          <th className="p-3.5 font-bold">Feeder</th>
+                          <th className="p-3.5 font-bold">Location & Operator</th>
                           <th className="p-3.5 font-bold">Quantity</th>
                           <th className="p-3.5 font-bold">Ask Rate</th>
                           <th className="p-3.5 font-bold">Status</th>
@@ -1333,7 +1454,15 @@ export default function UnifiedPlatformPage() {
                                 <Sun className="w-3.5 h-3.5 text-amber-500" />
                                 Rooftop Prosumer
                               </td>
-                              <td className="p-3.5 text-slate-600">{o.feeder_id}</td>
+                              <td className="p-3.5">
+                                <span className="text-slate-800 font-medium flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-rose-500 shrink-0" />
+                                  {o.feeder_id === 'FEEDER-01' ? 'Sector 14 (Villa #14)' : 'Sector 22 (Plot #88)'}
+                                </span>
+                                <span className="text-[10px] text-indigo-700 font-mono block mt-0.5">
+                                  {o.feeder_id === 'FEEDER-01' ? 'North DISCOM • Feeder-01' : 'South DISCOM • Feeder-02'}
+                                </span>
+                              </td>
                               <td className="p-3.5 font-mono font-bold text-slate-900">
                                 {(o.quantity_kwh - o.filled_kwh).toFixed(1)} kWh
                               </td>
@@ -1359,6 +1488,10 @@ export default function UnifiedPlatformPage() {
                                       rating: 4.9,
                                       co2SavedKgPerKwh: 0.85,
                                       isCertified: true,
+                                      location: o.feeder_id === 'FEEDER-01' ? 'Sector 14, Villa #14' : 'Sector 22, Plot #88',
+                                      operatorName: o.feeder_id === 'FEEDER-01' ? 'North DISCOM' : 'South DISCOM',
+                                      distanceKm: o.feeder_id === selectedFeeder ? 0.85 : 3.4,
+                                      coordinates: o.feeder_id === 'FEEDER-01' ? '28.5362° N, 77.3925° E' : '28.5635° N, 77.4140° E',
                                     })
                                     setActiveTab('unified')
                                     setPurchaseStep(2)

@@ -88,14 +88,35 @@ export default function InvoiceModal({ settlement, isOpen, onClose, onViewBlockc
             </div>
           </div>
 
-          {/* Parties Involved */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80">
-              <span className="text-xs font-bold text-amber-900 block mb-1 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-amber-600" /> Solar Seller (Rooftop Prosumer)
+          {/* Mediated Clearing & Zero Direct Peer Dealing Notice */}
+          <div className="p-3 rounded-2xl bg-indigo-50 border border-indigo-200 flex items-center justify-between text-xs text-indigo-950">
+            <div className="flex items-center gap-2">
+              <Shield className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span>
+                <strong>DISCOM Median Intermediary:</strong> Cleared at fair median rate of <strong>₹{settlement.clearing_price.toFixed(2)}/kWh</strong>. Zero direct peer-to-peer dealing.
               </span>
-              <p className="text-[11px] text-amber-800/80 font-mono">Ref: {settlement.seller_ref}</p>
-              <div className="mt-2 pt-2 border-t border-amber-200/60 flex justify-between items-center">
+            </div>
+            <span className="text-[10px] font-mono font-bold text-indigo-700 bg-white px-2 py-0.5 rounded border border-indigo-200 shrink-0">
+              Inter-Operator Cleared
+            </span>
+          </div>
+
+          {/* Parties Involved with Physical Geolocation */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-amber-50/60 border border-amber-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-amber-600" /> Solar Seller (Rooftop Prosumer)
+                </span>
+                <span className="text-[9px] font-mono font-bold text-amber-800 bg-white px-1.5 py-0.5 rounded border border-amber-200">
+                  Sector 14 • Feeder-01
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-700">
+                📍 Villa #14, Green Meadows Solar Colony (28.5362° N, 77.3925° E)
+              </p>
+              <p className="text-[10px] text-amber-800/80 font-mono">Wallet Ref: {settlement.seller_ref}</p>
+              <div className="pt-2 border-t border-amber-200/60 flex justify-between items-center">
                 <span className="text-slate-600">Net Credit Earned:</span>
                 <span className="text-emerald-700 font-bold text-sm">
                   + ₹{settlement.seller_credit.toFixed(2)}
@@ -103,12 +124,20 @@ export default function InvoiceModal({ settlement, isOpen, onClose, onViewBlockc
               </div>
             </div>
 
-            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80">
-              <span className="text-xs font-bold text-blue-900 block mb-1 flex items-center gap-1.5">
-                <Zap className="w-3.5 h-3.5 text-blue-600" /> Energy Buyer (Consumer)
-              </span>
-              <p className="text-[11px] text-blue-800/80 font-mono">Ref: {settlement.buyer_ref}</p>
-              <div className="mt-2 pt-2 border-t border-blue-200/60 flex justify-between items-center">
+            <div className="p-4 rounded-2xl bg-blue-50/60 border border-blue-200/80 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+                  <Zap className="w-3.5 h-3.5 text-blue-600" /> Energy Buyer (Consumer)
+                </span>
+                <span className="text-[9px] font-mono font-bold text-blue-800 bg-white px-1.5 py-0.5 rounded border border-blue-200">
+                  Sector 22 • Feeder-02
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-700">
+                📍 Tower C, Apartment 402, Maple Heights (28.5615° N, 77.4105° E)
+              </p>
+              <p className="text-[10px] text-blue-800/80 font-mono">Wallet Ref: {settlement.buyer_ref}</p>
+              <div className="pt-2 border-t border-blue-200/60 flex justify-between items-center">
                 <span className="text-slate-600">Net Debit Charged:</span>
                 <span className="text-slate-900 font-bold text-sm">
                   - ₹{settlement.buyer_debit.toFixed(2)}

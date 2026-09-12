@@ -236,3 +236,42 @@ class WSEvent(BaseModel):
     event: WSEventType
     data: dict
     timestamp: datetime
+
+
+# ── Inter-Operator Handshake & Location Schemas ────────────────────────────────
+class LocationMetadata(BaseModel):
+    user_id: Optional[str] = None
+    name: Optional[str] = None
+    address: str
+    feeder_id: str
+    operator_id: str
+    latitude: float
+    longitude: float
+    distance_to_substation_km: float
+    grid_node: str
+    generation_source: Optional[str] = None
+    load_profile: Optional[str] = None
+
+
+class InterOperatorHandshakeRequest(BaseModel):
+    buyer_feeder_id: str
+    seller_feeder_id: str
+    quantity_kwh: float = Field(..., gt=0.0)
+    buyer_max_price: Optional[float] = 5.0
+    seller_min_price: Optional[float] = 4.0
+
+
+class InterOperatorHandshakeResponse(BaseModel):
+    handshake_id: str
+    is_cross_operator: bool
+    status: str
+    reason: Optional[str] = None
+    median_clearing_price: float
+    buyer_operator: dict
+    seller_operator: dict
+    tie_line: Optional[dict] = None
+    wheeling_charge_per_kwh: Optional[float] = None
+    clearance_token: Optional[str] = None
+    steps: list[dict]
+    distance_info: dict
+
