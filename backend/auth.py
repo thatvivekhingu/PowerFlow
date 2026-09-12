@@ -88,3 +88,20 @@ require_prosumer = require_roles(UserRole.prosumer)
 require_consumer = require_roles(UserRole.consumer)
 require_operator = require_roles(UserRole.discom_operator, UserRole.regulator)
 require_any_authenticated = require_roles(*UserRole)
+
+
+# ── Password Hashing Helpers ──────────────────────────────────────────────────
+import bcrypt
+
+def hash_password(password: str) -> str:
+    """Hash password using bcrypt."""
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against bcrypt hash."""
+    try:
+        return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    except Exception:
+        return False
+

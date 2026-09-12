@@ -1,19 +1,17 @@
-# GRIDMIND — Local development runner (no Docker required)
+# POWERFLOW - Local development runner
 # Run from the repository root: .\start_local.ps1
-#
 # Requirements: Python 3.12+, Node.js 18+
-# Everything else (SQLite, fakeredis) is handled automatically.
 
 $ErrorActionPreference = "Stop"
 $Root = $PSScriptRoot
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  GRIDMIND — Local Dev Startup" -ForegroundColor Cyan
+Write-Host "  POWERFLOW - Local Dev Startup" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# ── 1. Install Python deps ────────────────────────────────────────────────────
+# --- 1. Install Python deps ---
 Write-Host "[1/4] Checking Python dependencies..." -ForegroundColor Yellow
 Push-Location "$Root\backend"
 pip install -q -r requirements_dev.txt
@@ -21,7 +19,7 @@ if ($LASTEXITCODE -ne 0) { Write-Error "pip install failed"; exit 1 }
 Pop-Location
 Write-Host "      OK" -ForegroundColor Green
 
-# ── 2. Install Frontend deps ──────────────────────────────────────────────────
+# --- 2. Install Frontend deps ---
 Write-Host "[2/4] Checking Node.js dependencies..." -ForegroundColor Yellow
 Push-Location "$Root\frontend"
 if (-not (Test-Path "node_modules")) {
@@ -31,7 +29,7 @@ if (-not (Test-Path "node_modules")) {
 Pop-Location
 Write-Host "      OK" -ForegroundColor Green
 
-# ── 3. Seed demo users (runs once — idempotent) ───────────────────────────────
+# --- 3. Seed demo users (runs once - idempotent) ---
 Write-Host "[3/4] Seeding demo users..." -ForegroundColor Yellow
 Push-Location "$Root\backend"
 $env:DEV_MODE = "true"
@@ -40,7 +38,7 @@ python -m simulator.seed_demo --seed-only
 Pop-Location
 Write-Host "      OK" -ForegroundColor Green
 
-# ── 4. Start all services in separate windows ─────────────────────────────────
+# --- 4. Start all services in separate windows ---
 Write-Host "[4/4] Starting services..." -ForegroundColor Yellow
 Write-Host ""
 
@@ -56,7 +54,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", $simCmd -WindowSty
 
 Start-Sleep -Seconds 1
 
-# Frontend (Next.js dev server — clears stale cache first)
+# Frontend (Next.js dev server - clears stale cache first)
 $frontendCmd = "cd '$Root\frontend'; Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue; npm run dev"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $frontendCmd -WindowStyle Normal
 

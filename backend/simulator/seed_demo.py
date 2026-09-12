@@ -37,11 +37,10 @@ from services.pricing_engine import compute_price_from_indices
 from services.grid_engine import validate_trade, update_grid_state
 from services.settlement_service import settle
 from services.matching_engine import enqueue_order
-from passlib.context import CryptContext
+from auth import hash_password
 
+DEMO_PASSWORD = hash_password("demo")
 
-pwd_ctx = CryptContext(schemes=["bcrypt"])
-DEMO_PASSWORD = pwd_ctx.hash("demo")
 
 FEEDER_DEMO = "FEEDER-01"
 FEEDER_CONGESTED = "FEEDER-02"
@@ -353,8 +352,14 @@ async def main(seed_only: bool = False) -> None:
     print("⚡ GRIDMIND DEMO SCENARIO RUNNER")
     print("═" * 60)
 
+    from database import engine, Base
+    import models  # noqa: F401
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
     print("\n📦 Seeding demo users...")
     users = await seed_users()
+
 
     if seed_only:
         print("\n✅ Seed complete. Run without --seed-only to execute demo scenarios.")

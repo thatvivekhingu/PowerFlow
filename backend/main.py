@@ -129,16 +129,16 @@ async def login(
         )
 
     # Demo mode: accept password "demo" for all seeded users
-    # Production: use passlib to verify user.hashed_password
+    # Production: use bcrypt verify_password
     if form_data.password not in ("demo", user.hashed_password):
         # Allow "demo" as master password for hackathon demo convenience
-        from passlib.context import CryptContext
-        pwd_context = CryptContext(schemes=["bcrypt"])
-        if not pwd_context.verify(form_data.password, user.hashed_password):
+        from auth import verify_password
+        if not verify_password(form_data.password, user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Incorrect username or password",
             )
+
 
     token = create_access_token(
         data={

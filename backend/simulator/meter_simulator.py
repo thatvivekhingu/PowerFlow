@@ -63,11 +63,10 @@ async def _get_or_create_simulator_token(db) -> str:
     if svc is None:
         # Create a service account user for the simulator
         import uuid
-        from passlib.context import CryptContext
-        pwd_ctx = CryptContext(schemes=["bcrypt"])
+        from auth import hash_password
         svc = User(
             username="simulator_service",
-            hashed_password=pwd_ctx.hash("simulator_secret"),
+            hashed_password=hash_password("simulator_secret"),
             role=UserRole.discom_operator,
             meter_id="METER-SVC-0000",
             feeder_id="FEEDER-01",
@@ -93,9 +92,9 @@ async def _ensure_users_exist(profiles: list[HouseholdProfile]) -> None:
     """
     global SIMULATOR_METER_TO_USER
     from sqlalchemy import select
-    from passlib.context import CryptContext
-    pwd_ctx = CryptContext(schemes=["bcrypt"])
-    hashed_demo_pw = pwd_ctx.hash("demo")
+    from auth import hash_password
+    hashed_demo_pw = hash_password("demo")
+
 
     async with db_session() as db:
         for p in profiles:
