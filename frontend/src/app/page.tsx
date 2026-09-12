@@ -586,25 +586,6 @@ export default function UnifiedPlatformPage() {
             <option value="FEEDER-02">Feeder 02 (Commercial)</option>
           </select>
 
-          {/* LangGraph Feature 4: Demand Response Mitigator */}
-          <button
-            onClick={() => setIsDemandResponseOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition shadow-xs cursor-pointer"
-            title="Open DISCOM Automated Demand Response & Congestion Mitigator"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
-            <span>⚡ Demand Response</span>
-          </button>
-
-          {/* LangGraph Feature 5: Dispute Resolution Oracle */}
-          <button
-            onClick={() => handleOpenDispute()}
-            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-semibold transition shadow-xs cursor-pointer"
-            title="Open Smart Meter Oracle & Delivery Dispute Resolution"
-          >
-            <span>⚖️ Dispute Oracle</span>
-          </button>
-
           {/* User profile pill */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
             <UserIcon className="w-3.5 h-3.5 text-slate-500" />
@@ -860,6 +841,12 @@ export default function UnifiedPlatformPage() {
                                 <span className="font-semibold text-slate-800">★ {pkg.rating} / 5.0</span>
                               </div>
                             </div>
+
+                            <div className="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded-lg mb-3 border border-slate-100 font-medium">
+                              <span className="text-amber-700 flex items-center gap-1">⚡ DR-Ready</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-indigo-700 flex items-center gap-1">⚖️ Oracle Protected</span>
+                            </div>
                           </div>
 
                           <button
@@ -1020,6 +1007,30 @@ export default function UnifiedPlatformPage() {
                     <CheckCircle2 className="w-6 h-6 text-blue-600 flex-shrink-0" />
                   </div>
 
+                  {/* LangGraph Feature 4: Demand Response & Congestion Mitigator in Step 3 */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50/80 to-orange-50/80 border border-amber-200 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
+                        <Zap className="w-4 h-4 text-amber-600" />
+                        Grid Congestion & Demand Response (LangGraph)
+                      </span>
+                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                        Feeder AI Guard
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-amber-900 leading-relaxed">
+                      Grid capacity is verified for this purchase. You can simulate neighborhood transformer peak stress (e.g. 93% overload) and watch LangGraph dynamically shed flexible EV/battery loads to secure transmission.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => setIsDemandResponseOpen(true)}
+                      className="w-full py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      Test Feeder Stress & Run AI Demand Response
+                    </button>
+                  </div>
+
                   {/* Billing Option Selection */}
                   <div>
                     <label className="block text-xs font-bold text-slate-800 mb-2">
@@ -1136,6 +1147,36 @@ export default function UnifiedPlatformPage() {
                     >
                       <Blocks className="w-4 h-4 text-purple-600" />
                       On-Chain Proof
+                    </button>
+                  </div>
+
+                  {/* LangGraph Feature 5: Smart Meter Oracle & Delivery Reconciliation Card in Step 4 */}
+                  <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border border-indigo-200 text-left space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                        <Shield className="w-4 h-4 text-indigo-600" />
+                        Smart Meter Oracle & Delivery Verification (LangGraph)
+                      </span>
+                      <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
+                        AI Oracle Guard
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-indigo-900 leading-relaxed">
+                      What if the seller experienced rooftop cloud cover during generation? The LangGraph Oracle compares physical meter export against this contracted trade, automatically issuing prorated buyer refunds and adjusted DISCOM wheeling fees with cryptographic SHA-256 audit receipts.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setActiveDisputeTrade({
+                          id: settlementModalData?.trade_id || trades[0]?.trade_id || 'TR-DEMO-001',
+                          kwh: purchaseKwh,
+                          price: activePackagePrice,
+                        })
+                        setIsDisputeOpen(true)
+                      }}
+                      className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                    >
+                      <span>⚖️ Verify Smart Meter Telemetry & Simulate Oracle Dispute</span>
                     </button>
                   </div>
 
