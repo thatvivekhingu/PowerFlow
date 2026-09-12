@@ -49,45 +49,45 @@ graph TD
 
 ```
 Powerflow/
-├── powerflow_mcp/                 # Core MCP Server Package
-│   ├── __init__.py
+├── supabase/                      # Production Supabase PostgreSQL Schema & Realtime
+│   ├── migrations/                # 20260912000000_powerflow_schema.sql (16 tables, 12 enums, 4 views, 9 RPCs)
+│   ├── .env.example               # Supabase project connection & keys template
+│   └── README.md                  # Detailed Supabase architecture & RLS security specification
+├── frontend/                      # Next.js 14 Cockpit Dashboard & Realtime Client
+│   ├── src/app/                   # Unified two-pane trading cockpit, market overview, billing modal
+│   ├── src/lib/                   # API client & Supabase typed RPC/View helpers (supabase.ts)
+│   └── src/types/                 # Full TypeScript schema matching backend & database
+├── backend/                       # FastAPI High-Performance Backend & Simulation
+│   ├── routers/                   # REST endpoints for market, orders, trades, grid, auth
+│   ├── services/                  # Pricing engine, matching engine, settlement & grid safety
+│   ├── simulator/                 # Realistic 15-min smart meter generation & load telemetry
+│   └── models/                    # SQLAlchemy ORM models & Alembic migrations
+├── blockchain/                    # Hardhat EVM Smart Contract & Proof Engine
+│   ├── contracts/                 # EnergyTrading.sol (Escrow, Trade Registration, Event Audit)
+│   └── hardhat.config.js          # Local Hardhat Node & Polygon Mumbai configuration
+├── powerflow_mcp/                 # Core Model Context Protocol (MCP) Server Package
 │   ├── server.py                  # Server initialization & tool registration (Official MCP SDK)
 │   ├── config.py                  # Pydantic environment configuration
 │   ├── errors.py                  # Typed domain exceptions (GridCongestionError, etc.)
 │   ├── schemas.py                 # Pydantic request/response validation schemas
 │   ├── security.py                # PII masking & role verification
 │   ├── audit.py                   # Cryptographic audit logging
-│   ├── db/
-│   │   ├── __init__.py
-│   │   ├── session.py             # PostgreSQL async connection & local dev fallback
-│   │   └── repository.py          # Typed repository for meters, feeders, orders, trades
-│   ├── models/
-│   │   ├── __init__.py
-│   │   └── forecasting.py         # Calibrated ML demand & solar forecasting services
-│   ├── services/
-│   │   ├── __init__.py
-│   │   ├── grid_service.py        # Feeder capacity & congestion calculations
-│   │   ├── market_service.py      # Bounded dynamic pricing & orderbook matching
-│   │   └── settlement_service.py  # Trade settlement & DISCOM wheeling deductions
-│   └── tools/
-│       ├── __init__.py
-│       ├── meter_tools.py         # get_meter_reading, get_available_surplus
-│       ├── forecast_tools.py      # get_demand_forecast, get_solar_forecast
-│       ├── grid_tools.py          # get_grid_status
-│       ├── market_tools.py        # get_market_price, get_open_orders, create_buy/sell_order
-│       └── settlement_tools.py    # get_settlement_status, get_trade_status
+│   ├── db/                        # PostgreSQL async connection & local dev fallback
+│   ├── models/                    # Calibrated ML demand & solar forecasting services
+│   ├── services/                  # Feeder capacity, dynamic pricing & settlement engine
+│   └── tools/                     # Read-only & state-changing tools (grid_tools, market_tools, etc.)
+├── powerflow_agent/               # LangGraph AI Agent & Human-In-The-Loop Copilot
+│   ├── agent.py                   # LangGraph StateGraph agent runner
+│   ├── state.py                   # Typed agent state & execution trace
+│   └── tools.py                   # Wrapped MCP tools for agent invocation
 ├── data/                          # Telemetry datasets & mock databases
 │   ├── powerflow_2026_mock_db.json
 │   ├── powerflow_2026_telemetry.csv
 │   └── open_meteo_forecast.json
-├── examples/
-│   ├── agent_client.py            # End-to-end Python AI-agent client
-│   └── conversations.md           # Example conversational transcripts
-├── tests/                         # Automated test suite
-│   ├── test_tools.py              # Tool functional tests
-│   └── test_validation.py         # Grid safety, role boundaries & failure tests
-├── requirements.txt
-├── .env.example
+├── examples/                      # Python agent client & conversational transcripts
+├── tests/                         # Automated test suite (MCP, backend, agent, and Supabase schema)
+├── start_local.ps1                # One-click Windows local development runner
+├── docker-compose.yml             # Containerized multi-service deployment
 └── README.md
 ```
 

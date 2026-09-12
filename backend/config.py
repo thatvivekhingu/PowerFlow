@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     def sync_database_url(self) -> str:
         return self.database_url.replace("postgresql+asyncpg://", "postgresql+psycopg2://")
 
+    # ── Supabase Integration ──────────────────────────────────────────────────
+    supabase_url: str = Field("", alias="SUPABASE_URL")
+    supabase_key: str = Field("", alias="SUPABASE_KEY")
+    supabase_service_role_key: str = Field("", alias="SUPABASE_SERVICE_ROLE_KEY")
+    supabase_jwt_secret: str = Field("", alias="SUPABASE_JWT_SECRET")
+
     # ── Redis ─────────────────────────────────────────────────────────────────
     redis_url: str = Field("redis://localhost:6379/0", alias="REDIS_URL")
 

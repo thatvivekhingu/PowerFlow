@@ -955,7 +955,7 @@ export default function UnifiedPlatformPage() {
                     </div>
 
                     <button
-                      onClick={handleProceedToGridCheck}
+                      onClick={handleProceedToGrid}
                       disabled={isCheckingGrid}
                       className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
