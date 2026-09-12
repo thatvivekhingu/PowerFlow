@@ -91,6 +91,20 @@ class LLMReasoningEngine:
             if candidates:
                 parsed["meter_id"] = candidates[0]
 
+        # Normalize order_side and quantity_kwh based on intent
+        if not parsed.get("order_side"):
+            intent_str = str(parsed.get("intent", ""))
+            if "BUY" in intent_str:
+                parsed["order_side"] = "BUY"
+            elif "SELL" in intent_str:
+                parsed["order_side"] = "SELL"
+
+        if parsed.get("quantity_kwh") is not None:
+            try:
+                parsed["quantity_kwh"] = float(parsed["quantity_kwh"])
+            except (ValueError, TypeError):
+                pass
+
         # Determine candidate tools and check for missing parameters
         parsed["candidate_tools"] = self._select_candidate_tools(parsed)
         parsed["missing_parameters"] = self._check_missing_parameters(parsed)

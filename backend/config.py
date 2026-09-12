@@ -35,8 +35,10 @@ class Settings(BaseSettings):
     # ── Supabase Integration ──────────────────────────────────────────────────
     supabase_url: str = Field("", alias="SUPABASE_URL")
     supabase_key: str = Field("", alias="SUPABASE_KEY")
-    supabase_service_role_key: str = Field("", alias="SUPABASE_SERVICE_ROLE_KEY")
-    supabase_jwt_secret: str = Field("", alias="SUPABASE_JWT_SECRET")
+    # ── LLM / Groq Cloud Integration ──────────────────────────────────────────
+    groq_api_key: str = Field("", alias="GROQ_API_KEY")
+    groq_model: str = Field("groq/compound-mini", alias="GROQ_MODEL")
+    groq_base_url: str = Field("https://api.groq.com/openai/v1", alias="GROQ_BASE_URL")
 
     # ── Redis ─────────────────────────────────────────────────────────────────
     redis_url: str = Field("redis://localhost:6379/0", alias="REDIS_URL")

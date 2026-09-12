@@ -11,8 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class AgentSettings(BaseSettings):
     """Configuration for local LLM and agent orchestration."""
 
-    # LLM Settings (Optimized for 8GB RAM with Qwen 2.5 3B)
-    LLM_PROVIDER: str = Field(default="ollama", description="'ollama', 'openai_compatible', or 'rule_guided'")
+    # LLM Settings (Groq Cloud ultra-fast inference / local Ollama)
+    LLM_PROVIDER: str = Field(default="groq", description="'groq', 'ollama', 'openai_compatible', or 'rule_guided'")
+    GROQ_API_KEY: str = Field(default="", description="Groq Cloud API Key (set via GROQ_API_KEY env)")
+    GROQ_MODEL: str = Field(default="groq/compound-mini", description="Groq Model (groq/compound-mini)")
     OLLAMA_BASE_URL: str = Field(default="http://localhost:11434", description="Ollama local daemon URL")
     OLLAMA_MODEL: str = Field(default="qwen2.5:3b", description="Default local LLM model name")
     TEMPERATURE: float = Field(default=0.1, description="Low temperature for deterministic tool routing")

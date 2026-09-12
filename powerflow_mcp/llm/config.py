@@ -11,10 +11,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class LLMConfig(BaseSettings):
     """Configuration parameters for Ollama LLM reasoning engine."""
 
-    # Ollama Host & Model Settings
-    LLM_PROVIDER: Literal["ollama", "openai_compatible", "rule_guided"] = Field(
-        default="ollama",
-        description="LLM provider backend"
+    # Provider & Model Settings
+    LLM_PROVIDER: Literal["groq", "ollama", "openai_compatible", "rule_guided"] = Field(
+        default="groq",
+        description="LLM provider backend (groq, ollama, openai_compatible, rule_guided)"
+    )
+    GROQ_API_KEY: str = Field(
+        default="",
+        description="Groq Cloud API Key (set via GROQ_API_KEY env or .env file)"
+    )
+    GROQ_BASE_URL: str = Field(
+        default="https://api.groq.com/openai/v1",
+        description="Groq API base URL"
+    )
+    GROQ_MODEL: str = Field(
+        default="groq/compound-mini",
+        description="Fast free Groq model (e.g. groq/compound-mini, openai/gpt-oss-20b)"
     )
     OLLAMA_BASE_URL: str = Field(
         default="http://localhost:11434",
