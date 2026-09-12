@@ -14,23 +14,16 @@ from database import get_db
 from models.order import Order, OrderSide, OrderStatus
 from models.user import User, UserRole
 from schemas import OrderCreate, OrderResponse
-from auth import get_current_user, require_roles
+from auth import get_current_user, require_roles, require_any_authenticated
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 
 
 def _validate_order_for_role(data: OrderCreate, user: User) -> None:
-    """Ensure role-side consistency: prosumers sell, consumers buy."""
-    if user.role == UserRole.prosumer and data.side == OrderSide.buy:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Prosumers can only post sell orders",
-        )
-    if user.role == UserRole.consumer and data.side == OrderSide.sell:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Consumers can only post buy orders",
-        )
+    """Ensure price boundaries and validation for orders.
+    In modern P2P microgrids, prosumers produce solar and consume power,
+    so they can post both buy and sell orders.
+    """
     if data.side == OrderSide.sell and data.min_price is None:
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
@@ -47,11 +40,11 @@ def _validate_order_for_role(data: OrderCreate, user: User) -> None:
 async def create_order(
     data: OrderCreate,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_roles(UserRole.prosumer, UserRole.consumer)),
+    current_user: User = Depends(require_any_authenticated),
 ):
     """
-    Create a buy or sell order. Prosumers may only post sell orders;
-    consumers may only post buy orders.
+    Create a buy or sell order.
+    Prosumers and consumers can place buy and sell orders across the P2P marketplace.
     After creation, the order is placed in the matching engine queue.
     """
     _validate_order_for_role(data, current_user)
