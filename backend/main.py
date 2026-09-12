@@ -30,7 +30,7 @@ from auth import create_access_token
 import models  # noqa: F401
 
 # Import routers
-from routers import meters, market, orders, grid, trades, dashboard, websocket, agent
+from routers import meters, market, orders, grid, trades, dashboard, websocket, agent, forecast
 
 DEV_MODE = os.getenv("DEV_MODE", "false").lower() == "true"
 
@@ -105,6 +105,7 @@ app.include_router(trades.router)
 app.include_router(dashboard.router)
 app.include_router(websocket.router)
 app.include_router(agent.router)
+app.include_router(forecast.router)
 
 
 # ── Auth endpoints ─────────────────────────────────────────────────────────────

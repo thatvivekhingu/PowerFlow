@@ -305,4 +305,93 @@ export const getParticipantLocations = (
     distance_info: any
   }>(`/api/grid/locations?buyer_feeder=${buyer_feeder}&seller_feeder=${seller_feeder}`)
 
+// ── Solar & Demand Forecasting API ───────────────────────────────────────────
+export interface ForecastModelMetadata {
+  model_id: string
+  model_name: string
+  version: string
+  status: 'PRODUCTION' | 'STAGING' | 'ARCHIVED'
+  architecture: string
+  features: string[]
+  mape: number
+  rmse: number
+  r2_score: number
+  trained_at: string
+  training_samples: number
+  latency_ms: number
+  is_active: boolean
+  notes: string
+}
+
+export interface ForecastPoint {
+  timestamp: string
+  hour_label: string
+  hour_number: number
+  day_label: string
+  solar_p10_kw: number
+  solar_p50_kw: number
+  solar_p90_kw: number
+  irradiance_w_m2: number
+  cloud_cover_pct: number
+  demand_p10_kw: number
+  demand_p50_kw: number
+  demand_p90_kw: number
+  surplus_p10_kwh: number
+  surplus_p50_kwh: number
+  surplus_p90_kwh: number
+  deficit_p50_kwh: number
+  solar_confidence_spread_kw: number
+  demand_confidence_spread_kw: number
+}
+
+export interface CombinedForecastResponse {
+  feeder_id: string
+  horizon_hours: number
+  generated_at: string
+  summary: {
+    total_solar_p50_kwh: number
+    total_demand_p50_kwh: number
+    total_surplus_p50_kwh: number
+    peak_solar_kw: number
+    peak_demand_kw: number
+    max_confidence_uncertainty_pct: number
+  }
+  models: {
+    solar: ForecastModelMetadata
+    demand: ForecastModelMetadata
+  }
+  forecast_points: ForecastPoint[]
+}
+
+export interface ForecastRegistryResponse {
+  registry: {
+    solar: ForecastModelMetadata[]
+    demand: ForecastModelMetadata[]
+  }
+  active_models: {
+    solar: ForecastModelMetadata
+    demand: ForecastModelMetadata
+  }
+}
+
+export const getCombinedForecast = (
+  feeder_id = 'FEEDER-01',
+  horizon_hours = 24,
+  solar_capacity_kw = 5.0,
+  demand_peak_kw = 3.5
+) =>
+  request<CombinedForecastResponse>(
+    `/api/forecast/combined?feeder_id=${feeder_id}&horizon_hours=${horizon_hours}&solar_capacity_kw=${solar_capacity_kw}&demand_peak_kw=${demand_peak_kw}`
+  )
+
+export const getForecastModels = () =>
+  request<ForecastRegistryResponse>('/api/forecast/models')
+
+export const selectForecastModel = (model_type: 'solar' | 'demand', version: string) =>
+  request<{ message: string; active_model: ForecastModelMetadata }>('/api/forecast/models/select', {
+    method: 'POST',
+    body: JSON.stringify({ model_type, version }),
+  })
+
+
 

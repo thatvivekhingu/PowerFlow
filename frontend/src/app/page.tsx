@@ -32,6 +32,7 @@ import DemandResponseModal from '@/components/DemandResponseModal'
 import DisputeResolutionModal from '@/components/DisputeResolutionModal'
 import InterOperatorTelemetry from '@/components/InterOperatorTelemetry'
 import GridLocationRadar from '@/components/GridLocationRadar'
+import ForecastingDashboard from '@/components/ForecastingDashboard'
 import {
   Zap,
   Sun,
@@ -70,7 +71,7 @@ import {
   Radio,
 } from 'lucide-react'
 
-type NavigationTab = 'unified' | 'sell_studio' | 'invoices' | 'blockchain'
+type NavigationTab = 'unified' | 'sell_studio' | 'forecast' | 'invoices' | 'blockchain'
 
 interface EnergyPackage {
   id: string
@@ -702,6 +703,18 @@ export default function UnifiedPlatformPage() {
               <Sun className="w-3.5 h-3.5 text-amber-500" />
               <span>Sell Solar</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('forecast')}
+              className={`px-3 py-1.5 rounded-xl transition-all cursor-pointer flex items-center gap-1.5 ${
+                activeTab === 'forecast'
+                  ? 'bg-white text-slate-900 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-purple-600" />
+              <span>AI Forecast</span>
+            </button>
           </div>
 
           {/* Market Price Ticker */}
@@ -771,6 +784,21 @@ export default function UnifiedPlatformPage() {
             <div>
               <span>Sell Solar Power</span>
               <span className="block text-[10px] font-normal opacity-85">Prosumer Studio</span>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('forecast')}
+            className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
+              activeTab === 'forecast'
+                ? 'bg-emerald-600 text-white shadow-sm'
+                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+            }`}
+          >
+            <TrendingUp className="w-4 h-4 flex-shrink-0 text-purple-600" />
+            <div>
+              <span>AI Forecast & Quantiles</span>
+              <span className="block text-[10px] font-normal opacity-85">Solar & Demand Engine</span>
             </div>
           </button>
 
@@ -2361,6 +2389,13 @@ export default function UnifiedPlatformPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {/* ═════════════════════════════════════════════════════════════════════ */}
+          {/* TAB: SOLAR & DEMAND FORECASTING ENGINE                                */}
+          {/* ═════════════════════════════════════════════════════════════════════ */}
+          {activeTab === 'forecast' && (
+            <ForecastingDashboard currentFeeder={selectedFeeder} />
           )}
 
           {/* ═════════════════════════════════════════════════════════════════════ */}
