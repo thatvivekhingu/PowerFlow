@@ -584,13 +584,24 @@ async def final_response_node(state: AgentState) -> dict[str, Any]:
             response = f"[SETTLEMENT STATUS QUERY] {settle.get('message', 'Settlement record not found.')}"
 
     else:
-        meter = state.get("meter_reading_data", {})
-        market = state.get("market_data", {})
+        meter = state.get("meter_reading_data") or {}
+        market = state.get("market_data") or {}
+        feeder = state.get("feeder_id") or "FEEDER-A"
+        price = market.get("indicative_price_inr_per_kwh") or 5.0
+        gen = meter.get("solar_generation_kw")
+        load = meter.get("current_load_kw")
+        meter_id = meter.get("meter_id") or state.get("meter_id") or "H011"
+
+        meter_details = ""
+        if gen is not None and load is not None:
+            meter_details = f"  * Smart Meter {meter_id}: Generating {gen} kW | Load {load} kW\n"
+
         response = (
-            f"[POWERFLOW STATUS SUMMARY]\n"
-            f"  * Meter: {meter.get('meter_id')}: Generating {meter.get('solar_generation_kw')} kW | Load {meter.get('current_load_kw')} kW\n"
-            f"  * Local Price: INR {market.get('indicative_price_inr_per_kwh', 5.0)}/kWh on {state.get('feeder_id')}\n"
-            f"  * Available Operations: You can ask for a demand forecast, check solar surplus, analyze market prices, or place a buy/sell order."
+            f"[POWERFLOW MARKETPLACE READY]\n"
+            f"  * Feeder: {feeder} | Current Indicative Price: INR {price:.2f}/kWh\n"
+            f"{meter_details}"
+            f"  * You can place a trade by saying: 'Buy 5 kWh' or 'Sell 3 kWh at ₹4.50'.\n"
+            f"  * You can also ask: 'Check solar surplus', 'What is the demand forecast?', or 'Explain feeder headroom'."
         )
 
     # Append assistant response to conversation history

@@ -72,8 +72,18 @@ class LLMReasoningEngine:
             parsed = memory.resolve_contextual_entities(parsed)
 
         # Domain normalization: resolve feeder from meter if meter is known
-        meter_id = parsed.get("meter_id")
         feeder_id = parsed.get("feeder_id")
+        if feeder_id:
+            feeder_upper = str(feeder_id).upper()
+            if "01" in feeder_upper or feeder_upper == "FEEDER-1":
+                parsed["feeder_id"] = "FEEDER-A"
+            elif "02" in feeder_upper or feeder_upper == "FEEDER-2":
+                parsed["feeder_id"] = "FEEDER-B"
+            elif "03" in feeder_upper or feeder_upper == "FEEDER-3":
+                parsed["feeder_id"] = "FEEDER-C"
+            feeder_id = parsed["feeder_id"]
+
+        meter_id = parsed.get("meter_id")
         if meter_id and meter_id in HOUSEHOLDS and not feeder_id:
             parsed["feeder_id"] = HOUSEHOLDS[meter_id]["feeder"]
         elif not meter_id and feeder_id:
@@ -161,20 +171,32 @@ class LLMReasoningEngine:
         if meter_id == "M101":
             meter_id = "H011"
 
-        # Extract feeder ID
-        feeder_match = re.search(r"\b(feeder-[abc]|feeder\s+[abc])\b", q, re.IGNORECASE)
+        # Extract feeder ID (support FEEDER-A, FEEDER-B, FEEDER-01, FEEDER-1, etc.)
+        feeder_match = re.search(r"\b(feeder-[abc0-9]+|feeder\s+[abc0-9]+)\b", q, re.IGNORECASE)
         feeder_id = None
         if feeder_match:
             raw = feeder_match.group(1).upper().replace(" ", "-")
-            feeder_id = raw if "FEEDER-" in raw else f"FEEDER-{raw[-1]}"
+            if "01" in raw or "-1" in raw:
+                feeder_id = "FEEDER-A"
+            elif "02" in raw or "-2" in raw:
+                feeder_id = "FEEDER-B"
+            elif "03" in raw or "-3" in raw:
+                feeder_id = "FEEDER-C"
+            else:
+                feeder_id = raw if "FEEDER-" in raw else f"FEEDER-{raw[-1]}"
 
         # Extract trade ID
         trade_match = re.search(r"\b(trd-\d{4}-\d{4})\b", q, re.IGNORECASE)
         trade_id = trade_match.group(1).upper() if trade_match else None
 
-        # Extract quantity
-        qty_match = re.search(r"(\d+(\.\d+)?)\s*kwh", q, re.IGNORECASE)
+        # Extract quantity (e.g. 10kwh, 10 kwh, 10 units, or 'buy 10')
+        qty_match = re.search(r"(\d+(\.\d+)?)\s*(?:kwh|units?)\b", q, re.IGNORECASE)
         qty = float(qty_match.group(1)) if qty_match else None
+
+        if not qty:
+            order_qty_match = re.search(r"\b(?:buy|sell|purchase|get|want)\s+(\d+(\.\d+)?)\b", q, re.IGNORECASE)
+            if order_qty_match:
+                qty = float(order_qty_match.group(1))
 
         # Extract price
         price_match = re.search(r"(?:₹|inr|rs\.?|at)\s*(\d+(\.\d+)?)", q, re.IGNORECASE)
@@ -186,7 +208,7 @@ class LLMReasoningEngine:
             if followup_match:
                 qty = float(followup_match.group(1))
 
-        # Classify intent
+        # Classify intent with comprehensive natural language coverage
         intent = "GENERAL"
         order_side = None
 
@@ -194,12 +216,18 @@ class LLMReasoningEngine:
             intent = "SETTLEMENT_STATUS"
         elif any(w in q for w in ["trade status", "order status", "delivery status", "trd-"]):
             intent = "TRADE_STATUS"
+        elif any(w in q for w in ["should i buy", "is it good to buy", "recommend", "advice", "should we buy"]):
+            intent = "BUY_RECOMMENDATION"
+            order_side = "BUY"
+        elif any(w in q for w in ["buy", "purchase", "want to buy", "need to buy", "get energy", "need power", "need electricity"]):
+            intent = "TRADE_ORDER"
+            order_side = "BUY"
+        elif any(w in q for w in ["sell", "want to sell", "list solar", "export surplus", "feed in", "post listing"]):
+            intent = "TRADE_ORDER"
+            order_side = "SELL"
         elif any(w in q for w in ["create", "place", "order", "sell order", "buy order"]):
             intent = "TRADE_ORDER"
             order_side = "SELL" if "sell" in q else "BUY"
-        elif any(w in q for w in ["should i buy", "recommend", "buy energy now", "advice"]):
-            intent = "BUY_RECOMMENDATION"
-            order_side = "BUY"
         elif any(w in q for w in ["why is the", "price high", "market price", "local price", "tariff", "pricing", "market analysis"]):
             intent = "MARKET_ANALYSIS"
         elif any(w in q for w in ["surplus", "excess solar", "solar availability", "solar generation", "pv generation"]):
@@ -216,8 +244,8 @@ class LLMReasoningEngine:
 
         return {
             "intent": intent,
-            "meter_id": meter_id,
-            "feeder_id": feeder_id,
+            "meter_id": meter_id or "H011",
+            "feeder_id": feeder_id or "FEEDER-A",
             "user_id": meter_id or "H011",
             "order_side": order_side,
             "quantity_kwh": qty,

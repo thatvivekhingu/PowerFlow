@@ -237,9 +237,9 @@ export default function CopilotDrawer({
                           </div>
                           <div className="grid grid-cols-2 gap-1 text-slate-600 text-[11px]">
                             <div>Quantity: <span className="font-semibold text-slate-800">{msg.proposedAction.quantity_kwh} kWh</span></div>
-                            <div>Price: <span className="font-semibold text-slate-800">₹{msg.proposedAction.target_price}/kWh</span></div>
+                            <div>Price: <span className="font-semibold text-slate-800">₹{(msg.proposedAction.target_price || (msg.proposedAction as any).target_price_inr || 5.0).toFixed(2)}/kWh</span></div>
                             <div>Est. Wheeling: <span className="font-semibold text-slate-800">₹{((msg.proposedAction.quantity_kwh || 2) * 0.25).toFixed(2)}</span></div>
-                            <div>Est. Total: <span className="font-semibold text-slate-800">₹{((msg.proposedAction.quantity_kwh || 2) * (msg.proposedAction.target_price || 5.5) + (msg.proposedAction.quantity_kwh || 2) * 0.25).toFixed(2)}</span></div>
+                            <div>Est. Total: <span className="font-semibold text-slate-800">₹{((msg.proposedAction.quantity_kwh || 2) * (msg.proposedAction.target_price || (msg.proposedAction as any).target_price_inr || 5.0) + (msg.proposedAction.quantity_kwh || 2) * 0.25).toFixed(2)}</span></div>
                           </div>
 
                           {!msg.actionResolved ? (

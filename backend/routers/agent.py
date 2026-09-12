@@ -100,6 +100,12 @@ async def chat_with_agent(req: ChatRequest):
 
         response_text = result.get("final_response") or "I processed your request, but no response was generated."
         proposed_action = result.get("proposed_action")
+        if proposed_action:
+            if "target_price" not in proposed_action and "target_price_inr" in proposed_action:
+                proposed_action["target_price"] = proposed_action["target_price_inr"]
+            if "target_price_inr" not in proposed_action and "target_price" in proposed_action:
+                proposed_action["target_price_inr"] = proposed_action["target_price"]
+
         confirmation_required = bool(result.get("confirmation_required", False) and proposed_action)
 
         tools_called = [tc.get("tool") for tc in result.get("tool_calls", []) if tc.get("tool")]
