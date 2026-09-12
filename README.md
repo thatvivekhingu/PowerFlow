@@ -314,4 +314,49 @@ The server adheres to Indian and international distribution grid standards:
 - **Central Electricity Authority (CEA) Technical Standards for Connectivity of the Distributed Generation Resources.**
 - **IEEE 1547 Standard for Interconnection and Interoperability of Distributed Energy Resources.**
 - **Wheeling Charge Mechanism:** Configurable DISCOM fee (default: ₹0.25/kWh) automatically calculated in gross vs net settlements.
->>>>>>> a706c58 (Initial commit)
+
+---
+
+## 🌐 Full-Stack Application & Blockchain Architecture
+
+In addition to the MCP Server and AI Agent, this repository houses the production-ready P2P energy trading web platform:
+
+- **Frontend (`/frontend`)**: Next.js 14 App Router, Tailwind CSS, clean light/white responsive design, dedicated `/login` page, real-time energy discovery & 4-step buyer workflow, live WebSocket orderbook updates, interactive DISCOM grid approval & invoice generator, and EVM blockchain settlement modal.
+- **Backend (`/backend`)**: FastAPI REST + WebSocket API server, SQLAlchemy ORM, SQLite/PostgreSQL support, dynamic bounded pricing engine, grid safety validator, automated mock meter simulator, and Ethereum JSON-RPC client (`backend/services/blockchain_service.py`).
+- **Blockchain (`/blockchain`, `/contracts`)**: Solidity smart contract (`EnergyMarketplace.sol`) deployed via Hardhat local node for tamper-proof on-chain settlement, DISCOM wheeling charge escrow, and trade audit verification.
+
+### ⚡ Quick Start (Local Full-Stack Platform)
+
+Run the full platform (Hardhat Node + Contract Deploy + FastAPI Backend + Next.js Frontend) in one command:
+
+```powershell
+.\start_local.ps1
+```
+
+Or start components individually:
+
+1. **Start Blockchain Node & Deploy Contract:**
+   ```bash
+   cd blockchain
+   npm install
+   npx hardhat node
+   # in another terminal:
+   npx hardhat run scripts/deploy.js --network localhost
+   ```
+
+2. **Start Backend API:**
+   ```bash
+   cd backend
+   pip install -r requirements.txt
+   uvicorn main:app --reload --port 8000
+   ```
+
+3. **Start Frontend Web App:**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev
+   ```
+
+Access the frontend at `http://localhost:3000` and the interactive API documentation at `http://localhost:8000/docs`.
+
