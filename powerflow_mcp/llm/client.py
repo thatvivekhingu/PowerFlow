@@ -81,7 +81,9 @@ class LocalLLMClient:
         start_t = observability_tracker.record_llm_request(self.model, last_prompt_snippet)
 
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            # Quick 2.0s connect timeout so fallback is near-instant if Ollama is not running locally
+            client_timeout = httpx.Timeout(self.timeout, connect=2.0)
+            async with httpx.AsyncClient(timeout=client_timeout) as client:
                 resp = await client.post(endpoint, json=payload)
                 if resp.status_code == 200:
                     data = resp.json()

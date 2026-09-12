@@ -27,6 +27,9 @@ import type {
 } from '@/types'
 import InvoiceModal from '@/components/InvoiceModal'
 import BlockchainModal from '@/components/BlockchainModal'
+import CopilotDrawer from '@/components/CopilotDrawer'
+import DemandResponseModal from '@/components/DemandResponseModal'
+import DisputeResolutionModal from '@/components/DisputeResolutionModal'
 import {
   Zap,
   Sun,
@@ -115,6 +118,11 @@ export default function UnifiedPlatformPage() {
   const [isInvoiceOpen, setIsInvoiceOpen] = useState(false)
   const [blockchainProof, setBlockchainProof] = useState<BlockchainProof | null>(null)
   const [isBlockchainOpen, setIsBlockchainOpen] = useState(false)
+
+  // ── Modals: LangGraph AI Optimization & Dispute ─────────────────────────────
+  const [isDemandResponseOpen, setIsDemandResponseOpen] = useState(false)
+  const [isDisputeOpen, setIsDisputeOpen] = useState(false)
+  const [activeDisputeTrade, setActiveDisputeTrade] = useState<{ id: string; kwh: number; price: number } | null>(null)
 
   // ── Check token on mount — requires active session to bypass login ──────────
   useEffect(() => {
@@ -363,6 +371,19 @@ export default function UnifiedPlatformPage() {
     }
   }
 
+  const handleOpenDispute = (trade?: Trade) => {
+    if (trade) {
+      setActiveDisputeTrade({
+        id: trade.trade_id,
+        kwh: trade.quantity_kwh,
+        price: trade.clearing_price,
+      })
+    } else {
+      setActiveDisputeTrade(null)
+    }
+    setIsDisputeOpen(true)
+  }
+
   // ── Seller: Post Solar Listing ──────────────────────────────────────────────
   const handlePostSellOrder = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -564,6 +585,25 @@ export default function UnifiedPlatformPage() {
             <option value="FEEDER-01">Feeder 01 (Residential)</option>
             <option value="FEEDER-02">Feeder 02 (Commercial)</option>
           </select>
+
+          {/* LangGraph Feature 4: Demand Response Mitigator */}
+          <button
+            onClick={() => setIsDemandResponseOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-xs font-semibold transition shadow-xs cursor-pointer"
+            title="Open DISCOM Automated Demand Response & Congestion Mitigator"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-ping" />
+            <span>⚡ Demand Response</span>
+          </button>
+
+          {/* LangGraph Feature 5: Dispute Resolution Oracle */}
+          <button
+            onClick={() => handleOpenDispute()}
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-800 border border-indigo-200 text-xs font-semibold transition shadow-xs cursor-pointer"
+            title="Open Smart Meter Oracle & Delivery Dispute Resolution"
+          >
+            <span>⚖️ Dispute Oracle</span>
+          </button>
 
           {/* User profile pill */}
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 border border-slate-200 text-xs">
@@ -1313,6 +1353,14 @@ export default function UnifiedPlatformPage() {
                             <Blocks className="w-3.5 h-3.5 text-purple-600" />
                             On-Chain Proof
                           </button>
+
+                          <button
+                            onClick={() => handleOpenDispute(t)}
+                            className="px-3 py-2 rounded-xl bg-white hover:bg-slate-100 text-indigo-700 border border-indigo-200 font-bold text-xs shadow-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                            title="Verify Smart Meter Telemetry vs Contract using LangGraph Oracle"
+                          >
+                            <span>⚖️ Oracle Audit</span>
+                          </button>
                         </div>
                       </div>
                     ))
@@ -1469,6 +1517,26 @@ export default function UnifiedPlatformPage() {
         proof={blockchainProof}
         isOpen={isBlockchainOpen}
         onClose={() => setIsBlockchainOpen(false)}
+      />
+
+      {/* ── LANGGRAPH FEATURES 1, 4 & 5 MODALS & COPILOT ─────────────────────── */}
+      <CopilotDrawer
+        currentFeeder={selectedFeeder}
+        onTradeExecuted={loadData}
+      />
+
+      <DemandResponseModal
+        isOpen={isDemandResponseOpen}
+        onClose={() => setIsDemandResponseOpen(false)}
+        currentFeeder={selectedFeeder}
+      />
+
+      <DisputeResolutionModal
+        isOpen={isDisputeOpen}
+        onClose={() => setIsDisputeOpen(false)}
+        tradeId={activeDisputeTrade?.id || 'TR-DEMO-001'}
+        initialContractedKwh={activeDisputeTrade?.kwh || 10.0}
+        initialPricePerKwh={activeDisputeTrade?.price || 5.40}
       />
     </div>
   )

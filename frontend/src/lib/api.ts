@@ -94,3 +94,128 @@ export const getMeterReadings = (meter_id: string) =>
 // ── Dashboard ─────────────────────────────────────────────────────────────────
 export const getDashboardSummary = () =>
   request<DashboardSummary>('/api/dashboard/summary')
+
+// ── LangGraph Agent & Copilot ──────────────────────────────────────────────────
+export interface AgentChatResponse {
+  response: string
+  intent: string
+  feeder_id?: string
+  confirmation_required: boolean
+  proposed_action?: {
+    side: 'buy' | 'sell'
+    quantity_kwh: number
+    target_price: number
+    feeder_id?: string
+    estimated_discom_fee?: number
+    estimated_total_inr?: number
+    seller_name?: string
+  }
+  trace: string[]
+  tools_called: string[]
+}
+
+export const sendAgentMessage = (
+  query: string,
+  history: Array<{ role: string; content: string }> = [],
+  feederId: string = 'FEEDER-A'
+) =>
+  request<AgentChatResponse>('/api/agent/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      query,
+      feeder_id: feederId,
+      conversation_history: history,
+    }),
+  })
+
+export const confirmAgentAction = (approved: boolean, proposedAction: any) =>
+  request<{
+    status: string
+    message: string
+    order_id?: string
+    trade_details?: any
+  }>('/api/agent/confirm', {
+    method: 'POST',
+    body: JSON.stringify({
+      approved,
+      proposed_action: proposedAction,
+    }),
+  })
+
+// ── LangGraph Demand Response & Congestion Mitigator ───────────────────────────
+export interface DemandResponseResult {
+  feeder_id: string
+  current_load_kw: number
+  capacity_kw: number
+  utilization_pct: number
+  target_utilization_pct: number
+  required_reduction_kw: number
+  flexible_loads: Array<{
+    meter_id: string
+    consumer_name: string
+    load_type: string
+    current_kw: number
+    sheddable_kw: number
+    curtailed: boolean
+    incentive_earned_inr: number
+  }>
+  incentive_rate_inr_per_kwh: number
+  curtailed_kw_achieved: number
+  post_dr_load_kw: number
+  post_dr_utilization_pct: number
+  status: string
+  summary: string
+  trace: string[]
+}
+
+export const triggerDemandResponse = (
+  feeder_id: string = 'FEEDER-A',
+  current_load_kw?: number,
+  capacity_kw?: number
+) =>
+  request<DemandResponseResult>('/api/agent/demand-response/trigger', {
+    method: 'POST',
+    body: JSON.stringify({
+      feeder_id,
+      current_load_kw,
+      capacity_kw,
+    }),
+  })
+
+// ── LangGraph Smart Meter Oracle & Dispute Resolution ─────────────────────────
+export interface DisputeResolutionResult {
+  trade_id: string
+  contracted_kwh: number
+  price_per_kwh: number
+  actual_delivered_kwh: number
+  shortfall_kwh: number
+  shortfall_pct: number
+  original_seller_credit: number
+  original_buyer_debit: number
+  original_discom_fee: number
+  adjusted_seller_credit: number
+  adjusted_buyer_refund: number
+  adjusted_discom_fee: number
+  net_buyer_paid: number
+  audit_hash: string
+  status: string
+  resolution_summary: string
+  trace: string[]
+}
+
+export const resolveDispute = (
+  trade_id: string,
+  contracted_kwh: number,
+  price_per_kwh: number,
+  actual_delivered_kwh?: number
+) =>
+  request<DisputeResolutionResult>('/api/agent/dispute/resolve', {
+    method: 'POST',
+    body: JSON.stringify({
+      trade_id,
+      contracted_kwh,
+      price_per_kwh,
+      actual_delivered_kwh,
+    }),
+  })
+
