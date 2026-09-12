@@ -1915,7 +1915,7 @@ export default function UnifiedPlatformPage() {
                                 <td className="p-3.5 font-mono font-bold text-emerald-700">₹{(o.min_price || 4.2).toFixed(2)}</td>
                                 <td className="p-3.5">
                                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                    o.status === 'open' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-blue-50 text-blue-800'
+                                    o.status === 'OPEN' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-blue-50 text-blue-800'
                                   }`}>
                                     {o.status.toUpperCase()}
                                   </span>
