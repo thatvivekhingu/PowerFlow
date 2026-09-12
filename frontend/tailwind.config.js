@@ -8,7 +8,18 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // GRIDMIND brand palette
+        brand: {
+          50: '#ecfdf5',
+          100: '#d1fae5',
+          200: '#a7f3d0',
+          300: '#6ee7b7',
+          400: '#34d399',
+          500: '#10b981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065f46',
+          900: '#064e3b',
+        },
         primary: {
           50: '#f0fdf4',
           100: '#dcfce7',
@@ -19,31 +30,17 @@ module.exports = {
           900: '#14532d',
         },
         energy: {
-          solar: '#fbbf24',
-          grid: '#60a5fa',
-          surplus: '#34d399',
-          deficit: '#f87171',
-        },
-        dark: {
-          900: '#0a0f1e',
-          800: '#0f172a',
-          700: '#1e293b',
-          600: '#334155',
+          solar: '#f59e0b',
+          grid: '#3b82f6',
+          surplus: '#10b981',
+          deficit: '#ef4444',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['var(--font-sans)', 'Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-      },
-      keyframes: {
-        glow: {
-          '0%': { boxShadow: '0 0 5px rgba(34, 197, 94, 0.2)' },
-          '100%': { boxShadow: '0 0 20px rgba(34, 197, 94, 0.6), 0 0 40px rgba(34, 197, 94, 0.2)' },
-        },
       },
     },
   },
