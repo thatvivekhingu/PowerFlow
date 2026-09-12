@@ -60,7 +60,7 @@ import {
   ChevronRight,
 } from 'lucide-react'
 
-type NavigationTab = 'buy_workflow' | 'marketplace' | 'grid_median' | 'invoices' | 'blockchain'
+type NavigationTab = 'unified' | 'invoices' | 'blockchain'
 
 interface EnergyPackage {
   id: string
@@ -86,7 +86,7 @@ export default function UnifiedPlatformPage() {
   const [userProfile, setUserProfile] = useState<{ username: string; role: string; feeder: string } | null>(null)
 
   // ── Navigation ──────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = useState<NavigationTab>('buy_workflow')
+  const [activeTab, setActiveTab] = useState<NavigationTab>('unified')
   const [selectedFeeder, setSelectedFeeder] = useState('FEEDER-01')
 
   // ── Data state ──────────────────────────────────────────────────────────────
@@ -608,47 +608,17 @@ export default function UnifiedPlatformPage() {
         {/* Left Navigation Sidebar */}
         <aside className="w-full md:w-64 border-r border-slate-200 bg-white p-4 flex flex-row md:flex-col gap-1.5 overflow-x-auto md:overflow-visible">
           <button
-            onClick={() => setActiveTab('buy_workflow')}
+            onClick={() => setActiveTab('unified')}
             className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
-              activeTab === 'buy_workflow'
+              activeTab === 'unified'
                 ? 'bg-emerald-600 text-white shadow-sm'
                 : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
             }`}
           >
-            <ShoppingCart className="w-4 h-4 flex-shrink-0" />
+            <Zap className="w-4 h-4 flex-shrink-0" />
             <div>
-              <span>Buy Sensible Energy</span>
-              <span className="block text-[10px] font-normal opacity-85">4-Step Guided Purchase</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('marketplace')}
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
-              activeTab === 'marketplace'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-            }`}
-          >
-            <Sun className="w-4 h-4 flex-shrink-0" />
-            <div>
-              <span>Seller Listings</span>
-              <span className="block text-[10px] font-normal opacity-85">Prosumer Solar Batches</span>
-            </div>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('grid_median')}
-            className={`flex items-center gap-3 px-3.5 py-3 rounded-2xl text-xs font-bold transition-all text-left cursor-pointer ${
-              activeTab === 'grid_median'
-                ? 'bg-emerald-600 text-white shadow-sm'
-                : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-            }`}
-          >
-            <Shield className="w-4 h-4 flex-shrink-0" />
-            <div>
-              <span>Grid Median & Pricing</span>
-              <span className="block text-[10px] font-normal opacity-85">Headroom & Wheeling</span>
+              <span>Unified Cockpit</span>
+              <span className="block text-[10px] font-normal opacity-85">Trading & Live Grid</span>
             </div>
           </button>
 
@@ -663,7 +633,7 @@ export default function UnifiedPlatformPage() {
             <FileText className="w-4 h-4 flex-shrink-0" />
             <div>
               <span>DISCOM Invoices</span>
-              <span className="block text-[10px] font-normal opacity-85">On-Bill Settlement Ledger</span>
+              <span className="block text-[10px] font-normal opacity-85">Full Settlement Ledger</span>
             </div>
           </button>
 
@@ -703,645 +673,774 @@ export default function UnifiedPlatformPage() {
         {/* Main Content Area */}
         <main className="flex-1 p-6 max-w-7xl mx-auto w-full space-y-6">
           {/* ═════════════════════════════════════════════════════════════════════ */}
-          {/* TAB 1: REALISTIC 4-STEP BUYER WORKFLOW                                */}
+          {/* CONSOLIDATED TWO-PANE DASHBOARD (ACTIVE TAB: UNIFIED)                */}
           {/* ═════════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'buy_workflow' && (
-            <div className="space-y-6">
-              {/* Stepper Progress Bar */}
-              <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs">
-                <div className="flex items-center justify-between max-w-3xl mx-auto">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        purchaseStep >= 1 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      1
-                    </span>
-                    <span className={`text-xs font-bold ${purchaseStep >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>
-                      Select Energy
-                    </span>
-                  </div>
-                  <div className={`flex-1 h-0.5 mx-4 ${purchaseStep >= 2 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+          {activeTab === 'unified' && (
+            <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-start">
+              {/* ── LEFT PANE: MARKETPLACE & GUIDED TRADING (7 cols on xl, 8 on 2xl) ── */}
+              <div className="xl:col-span-7 2xl:col-span-8 space-y-6">
+                {/* Stepper Progress Bar */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs">
+                  <div className="flex items-center justify-between max-w-2xl mx-auto">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          purchaseStep >= 1 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        1
+                      </span>
+                      <span className={`text-xs font-bold ${purchaseStep >= 1 ? 'text-slate-900' : 'text-slate-400'}`}>
+                        Select Energy
+                      </span>
+                    </div>
+                    <div className={`flex-1 h-0.5 mx-3 ${purchaseStep >= 2 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
 
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        purchaseStep >= 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      2
-                    </span>
-                    <span className={`text-xs font-bold ${purchaseStep >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>
-                      Configure Units
-                    </span>
-                  </div>
-                  <div className={`flex-1 h-0.5 mx-4 ${purchaseStep >= 3 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          purchaseStep >= 2 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        2
+                      </span>
+                      <span className={`text-xs font-bold ${purchaseStep >= 2 ? 'text-slate-900' : 'text-slate-400'}`}>
+                        Configure Units
+                      </span>
+                    </div>
+                    <div className={`flex-1 h-0.5 mx-3 ${purchaseStep >= 3 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
 
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        purchaseStep >= 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      3
-                    </span>
-                    <span className={`text-xs font-bold ${purchaseStep >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>
-                      Grid Clearance
-                    </span>
-                  </div>
-                  <div className={`flex-1 h-0.5 mx-4 ${purchaseStep >= 4 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          purchaseStep >= 3 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        3
+                      </span>
+                      <span className={`text-xs font-bold ${purchaseStep >= 3 ? 'text-slate-900' : 'text-slate-400'}`}>
+                        Grid Clearance
+                      </span>
+                    </div>
+                    <div className={`flex-1 h-0.5 mx-3 ${purchaseStep >= 4 ? 'bg-emerald-500' : 'bg-slate-200'}`} />
 
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
-                        purchaseStep >= 4 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
-                      }`}
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${
+                          purchaseStep >= 4 ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'
+                        }`}
+                      >
+                        4
+                      </span>
+                      <span className={`text-xs font-bold ${purchaseStep >= 4 ? 'text-slate-900' : 'text-slate-400'}`}>
+                        Settlement
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* STEP 1: BROWSE SENSIBLE ELECTRICITY */}
+                {purchaseStep === 1 && (
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div>
+                        <h2 className="text-lg font-bold text-slate-900">
+                          Choose Sensible Clean Electricity
+                        </h2>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          Verified neighborhood solar generation at ~45% lower prices than standard grid tariffs.
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-2xl border border-slate-200 shadow-xs text-xs self-start sm:self-auto">
+                        <span className="text-slate-500">Grid Rate:</span>
+                        <span className="font-bold text-slate-900 font-mono">₹8.50/kWh</span>
+                      </div>
+                    </div>
+
+                    {/* Energy Package Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+                      {availablePackages.map((pkg) => {
+                        const savingsPct = Math.round(((utilityGridTariff - pkg.pricePerKwh) / utilityGridTariff) * 100)
+                        return (
+                          <div
+                            key={pkg.id}
+                            className="bg-white border border-slate-200 hover:border-emerald-500 rounded-3xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
+                          >
+                            <div>
+                              {/* Badges */}
+                              <div className="flex items-center justify-between mb-3">
+                                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                                  {pkg.sourceType}
+                                </span>
+                                <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                                  Save {savingsPct}%
+                                </span>
+                              </div>
+
+                              <h3 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-emerald-700 transition-colors">
+                                {pkg.title}
+                              </h3>
+                              <p className="text-xs text-slate-500 mb-3">{pkg.sellerName} • {pkg.feederId}</p>
+
+                              {/* Price Comparison Callout */}
+                              <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 mb-3">
+                                <div className="flex items-baseline justify-between">
+                                  <span className="text-xs text-slate-500">P2P Tariff:</span>
+                                  <span className="text-xl font-black text-slate-900 font-mono">
+                                    ₹{pkg.pricePerKwh.toFixed(2)}
+                                    <span className="text-xs text-slate-500 font-normal"> / kWh</span>
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-center text-[10px] text-emerald-700 font-semibold mt-1">
+                                  <span>vs ₹8.50 Grid</span>
+                                  <span>Save ₹{(utilityGridTariff - pkg.pricePerKwh).toFixed(2)}/kWh</span>
+                                </div>
+                              </div>
+
+                              {/* Details */}
+                              <div className="space-y-1 text-xs text-slate-600 mb-3">
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Available:</span>
+                                  <span className="font-mono font-semibold text-slate-800">{pkg.availableKwh.toFixed(1)} kWh</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Green Impact:</span>
+                                  <span className="font-medium text-emerald-700">{pkg.co2SavedKgPerKwh} kg CO2/kWh</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span className="text-slate-400">Reliability Score:</span>
+                                  <span className="font-semibold text-slate-800">★ {pkg.rating} / 5.0</span>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded-lg mb-3 border border-slate-100 font-medium">
+                                <span className="text-amber-700 flex items-center gap-1">⚡ DR-Ready</span>
+                                <span className="text-slate-300">|</span>
+                                <span className="text-indigo-700 flex items-center gap-1">⚖️ Oracle Protected</span>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleSelectPackage(pkg)}
+                              className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                            >
+                              Select & Configure
+                              <ArrowRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* STEP 2: CONFIGURE UNITS & ESTIMATE BILL */}
+                {purchaseStep === 2 && selectedPackage && (
+                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-2xl mx-auto space-y-6 animate-fade-in">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                      <div>
+                        <span className="text-xs text-slate-500 block">Configuring Purchase From:</span>
+                        <h2 className="text-base font-bold text-slate-900">{selectedPackage.title}</h2>
+                        <span className="text-xs text-emerald-700 font-semibold font-mono">
+                          ₹{selectedPackage.pricePerKwh.toFixed(2)} / kWh
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => setPurchaseStep(1)}
+                        className="text-xs text-slate-500 hover:text-slate-900 font-medium cursor-pointer"
+                      >
+                        Change Package
+                      </button>
+                    </div>
+
+                    {/* Quantity Input */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-bold text-slate-700">Purchase Volume (kWh)</label>
+                        <span className="text-xs font-mono text-emerald-700 font-semibold">
+                          Max Available: {selectedPackage.availableKwh.toFixed(1)} kWh
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="range"
+                          min="1"
+                          max={Math.min(selectedPackage.availableKwh, 50)}
+                          step="1"
+                          value={purchaseKwh}
+                          onChange={(e) => setPurchaseKwh(Number(e.target.value))}
+                          className="flex-1 accent-emerald-600 cursor-pointer h-2 bg-slate-200 rounded-lg"
+                        />
+                        <div className="w-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono text-center font-bold text-slate-900 text-sm">
+                          {purchaseKwh} kWh
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Financial Summary Box */}
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2">
+                      <div className="flex justify-between text-slate-600">
+                        <span>Solar Clean Energy ({purchaseKwh} kWh @ ₹{activePackagePrice.toFixed(2)}):</span>
+                        <span className="font-mono font-bold text-slate-900">₹{energyCost.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-slate-600">
+                        <span className="flex items-center gap-1">
+                          DISCOM Grid Wheeling Fee (₹0.02/kWh):
+                          <span className="text-[10px] text-slate-400" title="Utility distribution fee">ⓘ</span>
+                        </span>
+                        <span className="font-mono font-bold text-slate-900">₹{wheelingCharge.toFixed(2)}</span>
+                      </div>
+                      <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-slate-900">
+                        <span>Estimated Total Bill:</span>
+                        <span className="font-mono text-sm text-emerald-700">₹{estimatedTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-between text-emerald-900">
+                        <span className="font-medium text-[11px]">Savings compared to ₹8.50 utility tariff:</span>
+                        <span className="font-mono font-bold text-xs text-emerald-700">
+                          Save ₹{totalSavings.toFixed(2)} (
+                          {Math.round((totalSavings / gridBaselineTotal) * 100)}%)
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Settlement & Billing Option */}
+                    <div>
+                      <label className="text-xs font-bold text-slate-700 block mb-2">
+                        Settlement & Billing Method
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setBillingOption('discom_bill')}
+                          className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                            billingOption === 'discom_bill'
+                              ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <Building className="w-4 h-4 text-emerald-700 mb-1" />
+                          <span className="font-bold text-xs text-slate-900 block">Monthly DISCOM Bill</span>
+                          <span className="text-[10px] text-slate-500">Auto-credited on power bill</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setBillingOption('wallet_upi')}
+                          className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                            billingOption === 'wallet_upi'
+                              ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <CreditCard className="w-4 h-4 text-blue-600 mb-1" />
+                          <span className="font-bold text-xs text-slate-900 block">Prepaid / UPI</span>
+                          <span className="text-[10px] text-slate-500">Instant direct settlement</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setBillingOption('blockchain_escrow')}
+                          className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                            billingOption === 'blockchain_escrow'
+                              ? 'border-emerald-600 bg-emerald-50/50 ring-2 ring-emerald-500/20'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <Blocks className="w-4 h-4 text-purple-600 mb-1" />
+                          <span className="font-bold text-xs text-slate-900 block">Smart Contract</span>
+                          <span className="text-[10px] text-slate-500">Escrow on Polygon testnet</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleProceedToGridCheck}
+                      disabled={isCheckingGrid}
+                      className="w-full py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-2 cursor-pointer"
                     >
-                      4
-                    </span>
-                    <span className={`text-xs font-bold ${purchaseStep >= 4 ? 'text-slate-900' : 'text-slate-400'}`}>
-                      Billing & Invoice
-                    </span>
+                      {isCheckingGrid ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Verifying Feeder Capacity & Transformer Clearance...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Verify Feeder Clearance & Continue</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* STEP 3: GRID MEDIAN & CLEARANCE VERIFICATION */}
+                {purchaseStep === 3 && (
+                  <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-2xl mx-auto space-y-6 animate-fade-in">
+                    <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+                      <div>
+                        <span className="text-xs text-slate-500 block">DISCOM Verification Gate</span>
+                        <h2 className="text-base font-bold text-slate-900">Physical Grid Clearance Approved</h2>
+                      </div>
+                      <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        Safe for Injection
+                      </span>
+                    </div>
+
+                    {/* Feeder technical status */}
+                    <div className="grid grid-cols-3 gap-3 text-xs">
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span className="text-slate-500 block mb-1 text-[11px]">Substation Feeder</span>
+                        <span className="font-mono font-bold text-slate-900">{selectedFeeder}</span>
+                        <span className="text-[10px] text-slate-400 block mt-1">11 kV Distribution</span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span className="text-slate-500 block mb-1 text-[11px]">Reverse Headroom</span>
+                        <span className="font-mono font-bold text-emerald-700">
+                          {gridState ? gridState.headroom_kw.toFixed(1) : '68.0'} kW
+                        </span>
+                        <span className="text-[10px] text-emerald-600 block mt-1">Sufficient for {purchaseKwh} kWh</span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <span className="text-slate-500 block mb-1 text-[11px]">Network Losses</span>
+                        <span className="font-mono font-bold text-slate-900">&lt; 1.4%</span>
+                        <span className="text-[10px] text-slate-400 block mt-1">Non-congested feeder</span>
+                      </div>
+                    </div>
+
+                    {/* LangGraph Feature 1 & 4 Demand Response Notice */}
+                    <div className="p-4 rounded-2xl bg-amber-50/80 border border-amber-200 space-y-2 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                          <Zap className="w-4 h-4 text-amber-600 fill-amber-600" />
+                          AI Demand Response Guardian (LangGraph)
+                        </span>
+                        <span className="text-[10px] bg-amber-200/80 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                          Active Monitoring
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-amber-900 leading-relaxed">
+                        If local transformer load exceeds 85% during peak hours, our LangGraph agent will automatically signal participating flexible loads to throttle and offer incentive credits, ensuring uninterrupted P2P energy flow.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsDemandResponseOpen(true)}
+                        className="text-xs font-bold text-amber-800 hover:text-amber-950 underline cursor-pointer flex items-center gap-1 pt-1"
+                      >
+                        Inspect Feeder Congestion Agent →
+                      </button>
+                    </div>
+
+                    {/* Final Order Review */}
+                    <div className="p-4 rounded-2xl bg-slate-900 text-white space-y-2 text-xs font-mono">
+                      <div className="flex justify-between text-slate-300">
+                        <span>Energy Quantity:</span>
+                        <span className="text-white font-bold">{purchaseKwh} kWh Solar</span>
+                      </div>
+                      <div className="flex justify-between text-slate-300">
+                        <span>P2P Tariff:</span>
+                        <span className="text-white font-bold">₹{activePackagePrice.toFixed(2)} / kWh</span>
+                      </div>
+                      <div className="flex justify-between text-slate-300">
+                        <span>DISCOM Wheeling Fee:</span>
+                        <span className="text-white font-bold">₹{wheelingCharge.toFixed(2)}</span>
+                      </div>
+                      <div className="pt-2 border-t border-slate-700 flex justify-between text-sm font-bold text-emerald-400">
+                        <span>Total Payable:</span>
+                        <span>₹{estimatedTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={handleExecutePurchaseAndSettle}
+                      disabled={isCheckingGrid}
+                      className="w-full py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      {isCheckingGrid ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          <span>Finalizing Trade & Generating DISCOM Invoice...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>Confirm Purchase & Settle Clean Energy</span>
+                          <Check className="w-4 h-4 stroke-[3]" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+
+                {/* STEP 4: ORDER COMPLETE & INVOICE GENERATION */}
+                {purchaseStep === 4 && (
+                  <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xs max-w-xl mx-auto text-center space-y-5 animate-fade-in">
+                    <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
+                      <Check className="w-8 h-8 stroke-[3]" />
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-black text-slate-900">Energy Cleared & Settled!</h2>
+                      <p className="text-xs text-slate-500 mt-1">{purchaseSuccess}</p>
+                    </div>
+
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-left">
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Volume Transferred:</span>
+                        <span className="font-bold text-slate-900 font-mono">{purchaseKwh} kWh Clean Solar</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Settled Price:</span>
+                        <span className="font-bold text-emerald-700 font-mono">₹{activePackagePrice.toFixed(2)} / kWh</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Total Charged:</span>
+                        <span className="font-bold text-slate-900 font-mono">₹{estimatedTotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-500">Your Money Saved:</span>
+                        <span className="font-bold text-emerald-700 font-mono">₹{totalSavings.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => setIsInvoiceOpen(true)}
+                        className="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <FileText className="w-4 h-4" />
+                        View DISCOM Invoice
+                      </button>
+
+                      <button
+                        onClick={() => handleOpenBlockchain()}
+                        className="flex-1 py-3 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
+                      >
+                        <Blocks className="w-4 h-4 text-purple-600" />
+                        On-Chain Proof
+                      </button>
+                    </div>
+
+                    {/* LangGraph Feature 5: Smart Meter Oracle Card in Step 4 */}
+                    <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border border-indigo-200 text-left space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                          <Shield className="w-4 h-4 text-indigo-600" />
+                          Smart Meter Oracle & Delivery Verification (LangGraph)
+                        </span>
+                        <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
+                          AI Oracle Guard
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-indigo-900 leading-relaxed">
+                        What if the seller experienced rooftop cloud cover during generation? The LangGraph Oracle compares physical meter export against this contracted trade, automatically issuing prorated buyer refunds and adjusted DISCOM wheeling fees with cryptographic SHA-256 audit receipts.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveDisputeTrade({
+                            id: settlementModalData?.trade_id || trades[0]?.trade_id || 'TR-DEMO-001',
+                            kwh: purchaseKwh,
+                            price: activePackagePrice,
+                          })
+                          setIsDisputeOpen(true)
+                        }}
+                        className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                      >
+                        <span>⚖️ Verify Smart Meter Telemetry & Simulate Oracle Dispute</span>
+                      </button>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setPurchaseStep(1)
+                        setSelectedPackage(null)
+                      }}
+                      className="text-xs text-slate-500 hover:text-slate-900 font-semibold cursor-pointer block mx-auto mt-2"
+                    >
+                      ← Buy More Solar Power
+                    </button>
+                  </div>
+                )}
+
+                {/* ── PROSUMER SOLAR BATCHES (ORDER BOOK) INTEGRATED BELOW WIZARD ── */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                        <Sun className="w-4 h-4 text-amber-500" />
+                        Active Prosumer Solar Batches (Order Book)
+                      </h3>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Live rooftop solar households feeding surplus green electricity into {selectedFeeder}.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsSellerModalOpen(true)}
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-xs flex items-center gap-1.5 cursor-pointer self-start sm:self-auto transition-colors"
+                    >
+                      <PlusCircle className="w-4 h-4" />
+                      List Surplus Solar Energy
+                    </button>
+                  </div>
+
+                  <div className="border border-slate-100 rounded-2xl overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-100">
+                        <tr>
+                          <th className="p-3.5 font-bold">Listing</th>
+                          <th className="p-3.5 font-bold">Seller Type</th>
+                          <th className="p-3.5 font-bold">Feeder</th>
+                          <th className="p-3.5 font-bold">Quantity</th>
+                          <th className="p-3.5 font-bold">Ask Rate</th>
+                          <th className="p-3.5 font-bold">Status</th>
+                          <th className="p-3.5 text-right font-bold">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {orders
+                          .filter((o) => o.side === 'sell')
+                          .map((o) => (
+                            <tr key={o.order_id} className="hover:bg-slate-50/80 transition-colors">
+                              <td className="p-3.5 font-mono text-slate-600">#{o.order_id.slice(0, 8)}</td>
+                              <td className="p-3.5 font-semibold text-slate-900 flex items-center gap-1.5">
+                                <Sun className="w-3.5 h-3.5 text-amber-500" />
+                                Rooftop Prosumer
+                              </td>
+                              <td className="p-3.5 text-slate-600">{o.feeder_id}</td>
+                              <td className="p-3.5 font-mono font-bold text-slate-900">
+                                {(o.quantity_kwh - o.filled_kwh).toFixed(1)} kWh
+                              </td>
+                              <td className="p-3.5 font-mono font-bold text-emerald-700">
+                                ₹{(o.min_price || 4.2).toFixed(2)} / kWh
+                              </td>
+                              <td className="p-3.5">
+                                <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
+                                  {o.status}
+                                </span>
+                              </td>
+                              <td className="p-3.5 text-right">
+                                <button
+                                  onClick={() => {
+                                    setSelectedPackage({
+                                      id: o.order_id,
+                                      title: `Solar Batch #${o.order_id.slice(0, 6)}`,
+                                      sourceType: 'Rooftop Solar',
+                                      sellerName: `Seller #${o.user_id.slice(0, 6)}`,
+                                      feederId: o.feeder_id,
+                                      pricePerKwh: o.min_price || 4.2,
+                                      availableKwh: o.quantity_kwh - o.filled_kwh,
+                                      rating: 4.9,
+                                      co2SavedKgPerKwh: 0.85,
+                                      isCertified: true,
+                                    })
+                                    setActiveTab('unified')
+                                    setPurchaseStep(2)
+                                    window.scrollTo({ top: 0, behavior: 'smooth' })
+                                  }}
+                                  className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs transition-colors cursor-pointer"
+                                >
+                                  Buy This Batch
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
 
-              {/* STEP 1: BROWSE SENSIBLE ELECTRICITY */}
-              {purchaseStep === 1 && (
-                <div className="space-y-5">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                      <h2 className="text-xl font-bold text-slate-900">
-                        Choose Sensible Clean Electricity
-                      </h2>
-                      <p className="text-xs text-slate-500 mt-1">
-                        Verified neighborhood solar generation at ~45% lower prices than standard utility grid tariffs.
-                      </p>
-                    </div>
-
-                    <div className="flex items-center gap-2 bg-white px-3.5 py-1.5 rounded-2xl border border-slate-200 shadow-xs text-xs">
-                      <span className="text-slate-500">Retail Grid Baseline:</span>
-                      <span className="font-bold text-slate-900 font-mono">₹8.50/kWh</span>
-                    </div>
-                  </div>
-
-                  {/* Energy Package Cards */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                    {availablePackages.map((pkg) => {
-                      const savingsPct = Math.round(((utilityGridTariff - pkg.pricePerKwh) / utilityGridTariff) * 100)
-                      return (
-                        <div
-                          key={pkg.id}
-                          className="bg-white border border-slate-200 hover:border-emerald-500 rounded-3xl p-5 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-                        >
-                          <div>
-                            {/* Badges */}
-                            <div className="flex items-center justify-between mb-3">
-                              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
-                                {pkg.sourceType}
-                              </span>
-                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
-                                Save {savingsPct}%
-                              </span>
-                            </div>
-
-                            <h3 className="font-bold text-slate-900 text-sm mb-1 group-hover:text-emerald-700 transition-colors">
-                              {pkg.title}
-                            </h3>
-                            <p className="text-xs text-slate-500 mb-4">{pkg.sellerName} • {pkg.feederId}</p>
-
-                            {/* Price Comparison Callout */}
-                            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 mb-4">
-                              <div className="flex items-baseline justify-between">
-                                <span className="text-xs text-slate-500">P2P Tariff:</span>
-                                <span className="text-2xl font-black text-slate-900 font-mono">
-                                  ₹{pkg.pricePerKwh.toFixed(2)}
-                                  <span className="text-xs text-slate-500 font-normal"> / kWh</span>
-                                </span>
-                              </div>
-                              <div className="flex justify-between items-center text-[10px] text-emerald-700 font-semibold mt-1">
-                                <span>vs ₹8.50 Grid Rate</span>
-                                <span>Save ₹{(utilityGridTariff - pkg.pricePerKwh).toFixed(2)}/kWh</span>
-                              </div>
-                            </div>
-
-                            {/* Details */}
-                            <div className="space-y-1.5 text-xs text-slate-600 mb-4">
-                              <div className="flex justify-between">
-                                <span className="text-slate-400">Available:</span>
-                                <span className="font-mono font-semibold text-slate-800">{pkg.availableKwh.toFixed(1)} kWh</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-slate-400">Green Impact:</span>
-                                <span className="font-medium text-emerald-700">{pkg.co2SavedKgPerKwh} kg CO2/kWh</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-slate-400">Reliability Score:</span>
-                                <span className="font-semibold text-slate-800">★ {pkg.rating} / 5.0</span>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-between text-[10px] text-slate-500 bg-slate-50 px-2 py-1 rounded-lg mb-3 border border-slate-100 font-medium">
-                              <span className="text-amber-700 flex items-center gap-1">⚡ DR-Ready</span>
-                              <span className="text-slate-300">|</span>
-                              <span className="text-indigo-700 flex items-center gap-1">⚖️ Oracle Protected</span>
-                            </div>
-                          </div>
-
-                          <button
-                            onClick={() => handleSelectPackage(pkg)}
-                            className="w-full py-2.5 px-4 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                          >
-                            Select & Configure
-                            <ArrowRight className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 2: CONFIGURE UNITS & ESTIMATE BILL */}
-              {purchaseStep === 2 && selectedPackage && (
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-2xl mx-auto space-y-6 animate-fade-in">
-                  <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                    <div>
-                      <span className="text-xs text-slate-500 block">Configuring Purchase From:</span>
-                      <h2 className="text-base font-bold text-slate-900">{selectedPackage.title}</h2>
-                      <span className="text-xs text-emerald-700 font-semibold font-mono">
-                        ₹{selectedPackage.pricePerKwh.toFixed(2)} / kWh
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => setPurchaseStep(1)}
-                      className="text-xs text-slate-500 hover:text-slate-900 font-medium cursor-pointer"
-                    >
-                      Change Package
-                    </button>
-                  </div>
-
-                  {/* Quantity Slider & Presets */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-2">
-                      How much electricity do you need?
-                    </label>
-                    <div className="flex items-center gap-4 mb-3">
-                      <input
-                        type="range"
-                        min="1"
-                        max={Math.min(selectedPackage.availableKwh, 50)}
-                        value={purchaseKwh}
-                        onChange={(e) => setPurchaseKwh(parseFloat(e.target.value))}
-                        className="flex-1 accent-emerald-600 cursor-pointer"
-                      />
-                      <div className="px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-base text-slate-900">
-                        {purchaseKwh} kWh
+              {/* ── RIGHT PANE: LIVE GRID TELEMETRY & RECENT SETTLEMENTS STREAM (5 cols on xl) ── */}
+              <div className="xl:col-span-5 2xl:col-span-4 space-y-5 xl:sticky xl:top-20">
+                {/* CARD 1: FEEDER TRANSFORMER TELEMETRY */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200 shadow-xs">
+                        <Shield className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">Feeder Headroom Telemetry</h3>
+                        <span className="text-[10px] text-slate-400 font-mono">{selectedFeeder} • 11kV Substation</span>
                       </div>
                     </div>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                      LIVE FEED
+                    </span>
+                  </div>
 
-                    <div className="flex gap-2">
-                      {[5, 10, 20, 30].map((units) => (
-                        <button
-                          key={units}
-                          type="button"
-                          onClick={() => setPurchaseKwh(units)}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                            purchaseKwh === units
-                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                              : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                          }`}
-                        >
-                          {units} kWh
-                        </button>
-                      ))}
+                  {/* Transformer Load Progress */}
+                  <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-slate-500">Transformer Load:</span>
+                      <span className="text-sm font-bold font-mono text-slate-900">
+                        {gridState ? gridState.load_kw.toFixed(1) : '32.0'}{' '}
+                        <span className="text-[11px] text-slate-400 font-normal">/ {gridState?.capacity_kw || 100} kW</span>
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          gridState && (gridState.load_kw / gridState.capacity_kw) > 0.85
+                            ? 'bg-rose-500'
+                            : 'bg-emerald-500'
+                        }`}
+                        style={{
+                          width: `${gridState ? Math.min((gridState.load_kw / gridState.capacity_kw) * 100, 100) : 32}%`
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-[11px] pt-1">
+                      <span className="text-slate-500">Reverse Headroom:</span>
+                      <span className="font-bold text-emerald-700 font-mono">
+                        {gridState ? gridState.headroom_kw.toFixed(1) : '68.0'} kW Available
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-[11px]">
+                      <span className="text-slate-500">DISCOM Wheeling Fee:</span>
+                      <span className="font-bold text-blue-700 font-mono">₹0.02 / kWh</span>
                     </div>
                   </div>
 
-                  {/* Real-time Bill Estimate Box */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 text-xs">
-                    <div className="flex justify-between text-slate-600">
-                      <span>Clean Energy Cost ({purchaseKwh} kWh @ ₹{selectedPackage.pricePerKwh}):</span>
-                      <span className="font-mono font-semibold text-slate-900">₹{energyCost.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between text-slate-600">
-                      <span>DISCOM Grid Wheeling Fee (₹0.02/kWh):</span>
-                      <span className="font-mono font-semibold text-amber-700">₹{wheelingCharge.toFixed(2)}</span>
-                    </div>
-                    <div className="pt-2 border-t border-slate-200 flex justify-between font-bold text-sm text-slate-900">
-                      <span>Total P2P Cost:</span>
-                      <span className="font-mono text-emerald-700">₹{estimatedTotal.toFixed(2)}</span>
-                    </div>
-                    <div className="pt-1 flex justify-between text-[11px] text-emerald-800 font-semibold bg-emerald-50 p-2 rounded-xl border border-emerald-200">
-                      <span>Instant Savings vs Utility Bill (₹{gridBaselineTotal.toFixed(2)}):</span>
-                      <span>Save ₹{totalSavings.toFixed(2)} (49%)</span>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleProceedToGrid}
-                    className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                  >
-                    Proceed to Grid Clearance & Dynamic Pricing
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                </div>
-              )}
-
-              {/* STEP 3: DISCOM GRID CLEARANCE & PRICING HANDLING */}
-              {purchaseStep === 3 && selectedPackage && (
-                <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs max-w-2xl mx-auto space-y-6 animate-fade-in">
-                  <div className="text-center">
-                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto mb-3">
-                      <Shield className="w-6 h-6" />
-                    </div>
-                    <h2 className="text-lg font-bold text-slate-900">
-                      DISCOM Grid Verification & Pricing Check
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-1">
-                      The grid operator validates local transformer capacity to prevent line overload before transmission.
-                    </p>
-                  </div>
-
-                  {/* Grid Checks Status */}
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-600 flex items-center gap-2">
-                        <Activity className="w-4 h-4 text-emerald-600" />
-                        Feeder Transformer Load:
-                      </span>
-                      <span className="font-mono font-bold text-slate-900">
-                        {gridState ? gridState.load_kw.toFixed(1) : '32.0'} kW / 100 kW
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-600 flex items-center gap-2">
-                        <BatteryCharging className="w-4 h-4 text-emerald-600" />
-                        Available Headroom for Injection:
-                      </span>
-                      <span className="font-mono font-bold text-emerald-700">
-                        {gridState ? gridState.headroom_kw.toFixed(1) : '68.0'} kW (Ample capacity)
-                      </span>
-                    </div>
-
-                    <div className="flex items-center justify-between text-xs pt-2 border-t border-slate-200">
-                      <span className="text-slate-600">Congestion Band:</span>
-                      <span className="px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                        GREEN — UNRESTRICTED TRANSMISSION
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Dynamic Clearing Price Callout */}
-                  <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-blue-900 block">
-                        Dynamic Market Price Locked
-                      </span>
-                      <span className="text-[11px] text-blue-800">
-                        P_final = min(P_max, max(P_min, P_market)) = ₹{selectedPackage.pricePerKwh.toFixed(2)}/kWh
-                      </span>
-                    </div>
-                    <CheckCircle2 className="w-6 h-6 text-blue-600 flex-shrink-0" />
-                  </div>
-
-                  {/* LangGraph Feature 4: Demand Response & Congestion Mitigator in Step 3 */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-50/80 to-orange-50/80 border border-amber-200 space-y-2.5">
+                  {/* LangGraph Demand Response Optimization CTA */}
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 space-y-2">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-amber-950 flex items-center gap-1.5">
-                        <Zap className="w-4 h-4 text-amber-600" />
-                        Grid Congestion & Demand Response (LangGraph)
+                        <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-600" />
+                        AI Demand Response (LangGraph)
                       </span>
-                      <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">
-                        Feeder AI Guard
+                      <span className="text-[10px] bg-amber-200/80 text-amber-800 font-bold px-2 py-0.5 rounded-full">
+                        Automated
                       </span>
                     </div>
-                    <p className="text-[11px] text-amber-900 leading-relaxed">
-                      Grid capacity is verified for this purchase. You can simulate neighborhood transformer peak stress (e.g. 93% overload) and watch LangGraph dynamically shed flexible EV/battery loads to secure transmission.
+                    <p className="text-[11px] text-amber-900 leading-tight">
+                      Dynamically balance transformer headroom during reverse-injection congestion using AI curtailment incentives.
                     </p>
                     <button
                       type="button"
                       onClick={() => setIsDemandResponseOpen(true)}
-                      className="w-full py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="w-full py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      Test Feeder Stress & Run AI Demand Response
+                      <span>⚡ Run Demand Response Check</span>
                     </button>
                   </div>
+                </div>
 
-                  {/* Billing Option Selection */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-800 mb-2">
-                      Choose Your Preferred Settlement & Billing Option:
-                    </label>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setBillingOption('discom_bill')}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                          billingOption === 'discom_bill'
-                            ? 'bg-emerald-50 border-emerald-500 shadow-xs'
-                            : 'bg-white border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Building className="w-4 h-4 text-emerald-600 mb-1.5" />
-                        <span className="text-xs font-bold text-slate-900 block">DISCOM Bill</span>
-                        <span className="text-[10px] text-slate-500">Deduct on monthly power statement</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setBillingOption('wallet_upi')}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                          billingOption === 'wallet_upi'
-                            ? 'bg-emerald-50 border-emerald-500 shadow-xs'
-                            : 'bg-white border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <CreditCard className="w-4 h-4 text-blue-600 mb-1.5" />
-                        <span className="text-xs font-bold text-slate-900 block">Energy Wallet / UPI</span>
-                        <span className="text-[10px] text-slate-500">Instant direct peer payment</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => setBillingOption('blockchain_escrow')}
-                        className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer ${
-                          billingOption === 'blockchain_escrow'
-                            ? 'bg-emerald-50 border-emerald-500 shadow-xs'
-                            : 'bg-white border-slate-200 hover:bg-slate-50'
-                        }`}
-                      >
-                        <Blocks className="w-4 h-4 text-purple-600 mb-1.5" />
-                        <span className="text-xs font-bold text-slate-900 block">Blockchain Escrow</span>
-                        <span className="text-[10px] text-slate-500">Smart contract auto-settle</span>
-                      </button>
+                {/* CARD 2: RECENT SETTLED TRADES STREAM */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center border border-blue-200">
+                        <FileText className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">Recent Settled Trades</h3>
+                        <span className="text-[10px] text-slate-400">Live P2P Settlements</span>
+                      </div>
                     </div>
+                    <span className="text-xs font-bold font-mono text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                      {trades.length} cleared
+                    </span>
                   </div>
 
-                  <button
-                    onClick={handleExecutePurchaseAndSettle}
-                    disabled={submittingOrder}
-                    className="w-full py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-300 text-white font-bold text-sm shadow-md shadow-emerald-600/20 flex items-center justify-center gap-2 cursor-pointer transition-all"
-                  >
-                    {submittingOrder ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        Matching & Settling via DISCOM...
-                      </>
+                  <div className="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+                    {trades.length === 0 ? (
+                      <div className="p-6 text-center text-slate-400 text-xs border border-dashed border-slate-200 rounded-2xl">
+                        No trades settled yet. Complete an energy purchase on the left to see settlements stream live!
+                      </div>
                     ) : (
-                      <>
-                        Authorize Transmission & Settle (₹{estimatedTotal.toFixed(2)})
-                        <ArrowRight className="w-4 h-4" />
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-
-              {/* STEP 4: ORDER COMPLETE & INVOICE GENERATION */}
-              {purchaseStep === 4 && (
-                <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-xs max-w-xl mx-auto text-center space-y-5 animate-fade-in">
-                  <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto border-2 border-emerald-200">
-                    <Check className="w-8 h-8 stroke-[3]" />
-                  </div>
-
-                  <div>
-                    <h2 className="text-xl font-black text-slate-900">Energy Cleared & Settled!</h2>
-                    <p className="text-xs text-slate-500 mt-1">{purchaseSuccess}</p>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-2 text-left">
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Volume Transferred:</span>
-                      <span className="font-bold text-slate-900 font-mono">{purchaseKwh} kWh Clean Solar</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Settled Price:</span>
-                      <span className="font-bold text-emerald-700 font-mono">₹{activePackagePrice.toFixed(2)} / kWh</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Total Charged:</span>
-                      <span className="font-bold text-slate-900 font-mono">₹{estimatedTotal.toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Your Money Saved:</span>
-                      <span className="font-bold text-emerald-700 font-mono">₹{totalSavings.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-3 pt-2">
-                    <button
-                      onClick={() => setIsInvoiceOpen(true)}
-                      className="flex-1 py-3 px-4 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                    >
-                      <FileText className="w-4 h-4" />
-                      View DISCOM Invoice
-                    </button>
-
-                    <button
-                      onClick={() => handleOpenBlockchain()}
-                      className="flex-1 py-3 px-4 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-xs shadow-xs flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                    >
-                      <Blocks className="w-4 h-4 text-purple-600" />
-                      On-Chain Proof
-                    </button>
-                  </div>
-
-                  {/* LangGraph Feature 5: Smart Meter Oracle & Delivery Reconciliation Card in Step 4 */}
-                  <div className="p-4 rounded-2xl bg-gradient-to-r from-indigo-50/80 to-blue-50/80 border border-indigo-200 text-left space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
-                        <Shield className="w-4 h-4 text-indigo-600" />
-                        Smart Meter Oracle & Delivery Verification (LangGraph)
-                      </span>
-                      <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-full">
-                        AI Oracle Guard
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-indigo-900 leading-relaxed">
-                      What if the seller experienced rooftop cloud cover during generation? The LangGraph Oracle compares physical meter export against this contracted trade, automatically issuing prorated buyer refunds and adjusted DISCOM wheeling fees with cryptographic SHA-256 audit receipts.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveDisputeTrade({
-                          id: settlementModalData?.trade_id || trades[0]?.trade_id || 'TR-DEMO-001',
-                          kwh: purchaseKwh,
-                          price: activePackagePrice,
-                        })
-                        setIsDisputeOpen(true)
-                      }}
-                      className="w-full py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xs flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
-                    >
-                      <span>⚖️ Verify Smart Meter Telemetry & Simulate Oracle Dispute</span>
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setPurchaseStep(1)
-                      setSelectedPackage(null)
-                    }}
-                    className="text-xs text-slate-500 hover:text-slate-900 font-semibold cursor-pointer block mx-auto mt-2"
-                  >
-                    ← Buy More Solar Power
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════════ */}
-          {/* TAB 2: SELLER LISTINGS & PROSUMER BATCHES                              */}
-          {/* ═════════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'marketplace' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Active Prosumer Solar Batches</h2>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Solar households in your neighborhood feeding surplus electricity into the grid.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setIsSellerModalOpen(true)}
-                  className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm flex items-center gap-1.5 cursor-pointer"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  List Surplus Solar Energy
-                </button>
-              </div>
-
-              {/* Order Book Table */}
-              <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xs">
-                <table className="w-full text-xs text-left">
-                  <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] tracking-wider border-b border-slate-200">
-                    <tr>
-                      <th className="p-4 font-bold">Listing ID</th>
-                      <th className="p-4 font-bold">Seller Type</th>
-                      <th className="p-4 font-bold">Feeder</th>
-                      <th className="p-4 font-bold">Quantity</th>
-                      <th className="p-4 font-bold">Ask Rate</th>
-                      <th className="p-4 font-bold">Status</th>
-                      <th className="p-4 text-right font-bold">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {orders
-                      .filter((o) => o.side === 'sell')
-                      .map((o) => (
-                        <tr key={o.order_id} className="hover:bg-slate-50/80 transition-colors">
-                          <td className="p-4 font-mono text-slate-600">#{o.order_id.slice(0, 8)}</td>
-                          <td className="p-4 font-semibold text-slate-900 flex items-center gap-1.5">
-                            <Sun className="w-3.5 h-3.5 text-amber-500" />
-                            Rooftop Prosumer
-                          </td>
-                          <td className="p-4 text-slate-600">{o.feeder_id}</td>
-                          <td className="p-4 font-mono font-bold text-slate-900">
-                            {(o.quantity_kwh - o.filled_kwh).toFixed(1)} kWh
-                          </td>
-                          <td className="p-4 font-mono font-bold text-emerald-700">
-                            ₹{(o.min_price || 4.2).toFixed(2)} / kWh
-                          </td>
-                          <td className="p-4">
-                            <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-[10px] font-bold">
-                              {o.status}
+                      trades.slice(0, 4).map((t) => (
+                        <div
+                          key={t.trade_id}
+                          className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 hover:border-emerald-300 transition-all space-y-1.5"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-mono text-xs font-bold text-slate-900">
+                                {t.quantity_kwh.toFixed(1)} kWh
+                              </span>
+                              <span className="text-[11px] text-emerald-700 font-bold font-mono">
+                                @ ₹{t.clearing_price.toFixed(2)}
+                              </span>
+                            </div>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold">
+                              {t.status}
                             </span>
-                          </td>
-                          <td className="p-4 text-right">
-                            <button
-                              onClick={() => {
-                                setSelectedPackage({
-                                  id: o.order_id,
-                                  title: `Solar Batch #${o.order_id.slice(0, 6)}`,
-                                  sourceType: 'Rooftop Solar',
-                                  sellerName: `Seller #${o.user_id.slice(0, 6)}`,
-                                  feederId: o.feeder_id,
-                                  pricePerKwh: o.min_price || 4.2,
-                                  availableKwh: o.quantity_kwh - o.filled_kwh,
-                                  rating: 4.9,
-                                  co2SavedKgPerKwh: 0.85,
-                                  isCertified: true,
-                                })
-                                setActiveTab('buy_workflow')
-                                setPurchaseStep(2)
-                              }}
-                              className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white font-bold text-xs transition-colors cursor-pointer"
-                            >
-                              Buy From Seller
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+                          </div>
+                          <div className="flex items-center justify-between text-[10px] text-slate-400 font-mono">
+                            <span>#{t.trade_id.slice(0, 8)}</span>
+                            <span>{new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
 
-          {/* ═════════════════════════════════════════════════════════════════════ */}
-          {/* TAB 3: GRID MEDIAN & WHEELING                                         */}
-          {/* ═════════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'grid_median' && (
-            <div className="space-y-6">
-              <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center border border-emerald-200">
-                    <Shield className="w-5 h-5" />
+                          <div className="flex items-center gap-1.5 pt-1">
+                            <button
+                              onClick={() => handleOpenInvoice(t.trade_id)}
+                              className="flex-1 py-1 px-1.5 rounded-lg bg-slate-900 hover:bg-emerald-600 text-white font-bold text-[10px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <FileText className="w-3 h-3" />
+                              Invoice
+                            </button>
+                            <button
+                              onClick={() => handleOpenBlockchain(t.trade_id)}
+                              className="flex-1 py-1 px-1.5 rounded-lg bg-purple-50 hover:bg-purple-100 text-purple-900 border border-purple-200 font-bold text-[10px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                            >
+                              <Blocks className="w-3 h-3 text-purple-600" />
+                              Chain
+                            </button>
+                            <button
+                              onClick={() => handleOpenDispute(t)}
+                              className="flex-1 py-1 px-1.5 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 font-bold text-[10px] flex items-center justify-center gap-1 transition-colors cursor-pointer"
+                              title="Audit with LangGraph Smart Meter Oracle"
+                            >
+                              <span>⚖️ Oracle</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
                   </div>
-                  <div>
-                    <h2 className="text-lg font-bold text-slate-900">DISCOM Grid Median & Wheeling Operations</h2>
-                    <p className="text-xs text-slate-500">
-                      Physical grid oversight: verifies reverse-power injection limits and computes non-discriminatory wheeling rates.
-                    </p>
-                  </div>
+
+                  {trades.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('invoices')}
+                      className="w-full py-2 text-center text-xs font-bold text-slate-600 hover:text-emerald-700 bg-slate-50 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer flex items-center justify-center gap-1"
+                    >
+                      <span>View Complete Billing Ledger ({trades.length})</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                    <span className="text-xs text-slate-500 block mb-1">Feeder Transformer Load</span>
-                    <span className="text-2xl font-black font-mono text-slate-900">
-                      {gridState ? gridState.load_kw.toFixed(1) : '32.0'}{' '}
-                      <span className="text-xs text-slate-400 font-normal">/ 100 kW</span>
-                    </span>
-                    <div className="w-full bg-slate-200 h-2 rounded-full mt-3 overflow-hidden">
-                      <div
-                        className="bg-emerald-600 h-full rounded-full transition-all"
-                        style={{ width: `${gridState ? (gridState.load_kw / gridState.capacity_kw) * 100 : 32}%` }}
-                      />
+                {/* CARD 3: SMART METER AMI STATUS */}
+                <div className="bg-white border border-slate-200 rounded-3xl p-4 shadow-xs space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-slate-800">Smart Meter AMI Status</span>
+                    </div>
+                    <span className="font-mono text-[10px] text-slate-500">MTR-H001</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] text-slate-400 block">Current Generation</span>
+                      <span className="font-mono font-bold text-amber-600">3.50 kW (Solar)</span>
+                    </div>
+                    <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-[10px] text-slate-400 block">Premises Load</span>
+                      <span className="font-mono font-bold text-slate-700">0.28 kW</span>
                     </div>
                   </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                    <span className="text-xs text-slate-500 block mb-1">Available Reverse Headroom</span>
-                    <span className="text-2xl font-black font-mono text-emerald-700">
-                      {gridState ? gridState.headroom_kw.toFixed(1) : '68.0'}{' '}
-                      <span className="text-xs text-slate-400 font-normal">kW</span>
-                    </span>
-                    <span className="text-[10px] text-slate-500 block mt-3">
-                      Allowed for injection without thermal stress
-                    </span>
-                  </div>
-
-                  <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                    <span className="text-xs text-slate-500 block mb-1">DISCOM Wheeling Fee Earned</span>
-                    <span className="text-2xl font-black font-mono text-blue-700">
-                      ₹0.02 <span className="text-xs text-slate-400 font-normal">/ kWh</span>
-                    </span>
-                    <span className="text-[10px] text-slate-500 block mt-3">
-                      Grid maintenance & technical loss recovery
-                    </span>
-                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* ═════════════════════════════════════════════════════════════════════ */}
-          {/* TAB 4: DISCOM SETTLEMENT INVOICES                                     */}
+          {/* TAB 2: DISCOM SETTLEMENT INVOICES                                     */}
           {/* ═════════════════════════════════════════════════════════════════════ */}
           {activeTab === 'invoices' && (
             <div className="space-y-6">
