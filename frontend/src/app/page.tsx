@@ -5,6 +5,11 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import InvoiceModal from '@/components/InvoiceModal'
 import BlockchainModal from '@/components/BlockchainModal'
+import SolarForecastView from '@/components/SolarForecastView'
+import DoubleAuctionView from '@/components/DoubleAuctionView'
+import IoTMeterView from '@/components/IoTMeterView'
+import CarbonImpactView from '@/components/CarbonImpactView'
+import BlockchainLedgerView from '@/components/BlockchainLedgerView'
 import type { BlockchainProof } from '@/types'
 import {
   Zap,
@@ -39,8 +44,13 @@ import {
   Building2,
   BatteryCharging,
   Cpu,
-  LogOut
+  LogOut,
+  Radio,
+  Scale,
+  Leaf,
+  Blocks,
 } from 'lucide-react'
+
 
 // Realistic photo avatars
 const AVATARS = {
@@ -52,7 +62,21 @@ const AVATARS = {
 export default function PowerFlowApp() {
   const router = useRouter()
   // Active Navigation Tab
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'marketplace' | 'prosumer' | 'operator' | 'wallet' | 'notifications' | 'copilot'>('dashboard')
+  const [activeTab, setActiveTab] = useState<
+    | 'dashboard'
+    | 'marketplace'
+    | 'solar_forecast'
+    | 'double_auction'
+    | 'iot_meter'
+    | 'prosumer'
+    | 'operator'
+    | 'carbon_impact'
+    | 'blockchain'
+    | 'wallet'
+    | 'notifications'
+    | 'copilot'
+  >('dashboard')
+
   
   // Current user persona
   const [role, setRole] = useState<'consumer' | 'prosumer' | 'operator'>('consumer')
@@ -250,6 +274,42 @@ export default function PowerFlowApp() {
             </button>
 
             <button
+              onClick={() => setActiveTab('solar_forecast')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'solar_forecast'
+                  ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/30'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              }`}
+            >
+              <Sun className="w-4 h-4 text-amber-500" />
+              <span>SolarSync AI</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('double_auction')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'double_auction'
+                  ? 'bg-indigo-600 text-white shadow-sm shadow-indigo-600/30'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              }`}
+            >
+              <Scale className="w-4 h-4 text-indigo-500" />
+              <span>Double-Auction</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('iot_meter')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'iot_meter'
+                  ? 'bg-blue-600 text-white shadow-sm shadow-blue-600/30'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              }`}
+            >
+              <Radio className="w-4 h-4 text-blue-500" />
+              <span>IoT Meter & Map</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('prosumer')}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
                 activeTab === 'prosumer'
@@ -257,7 +317,7 @@ export default function PowerFlowApp() {
                   : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
               }`}
             >
-              <Sun className="w-4 h-4" />
+              <BatteryCharging className="w-4 h-4" />
               Prosumer Studio
             </button>
 
@@ -272,6 +332,31 @@ export default function PowerFlowApp() {
               <Shield className="w-4 h-4" />
               Grid Operator
             </button>
+
+            <button
+              onClick={() => setActiveTab('carbon_impact')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'carbon_impact'
+                  ? 'bg-teal-600 text-white shadow-sm shadow-teal-600/30'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              }`}
+            >
+              <Leaf className="w-4 h-4 text-emerald-500" />
+              <span>Carbon Impact</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('blockchain')}
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                activeTab === 'blockchain'
+                  ? 'bg-purple-600 text-white shadow-sm shadow-purple-600/30'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+              }`}
+            >
+              <Blocks className="w-4 h-4 text-purple-500" />
+              <span>Blockchain Ledger</span>
+            </button>
+
 
             <button
               onClick={() => setActiveTab('wallet')}
@@ -1498,9 +1583,46 @@ export default function PowerFlowApp() {
           )}
 
           {/* ══════════════════════════════════════════════════════════════
+              NEXT-GEN REFERENCE SYNTHESIS VIEWS
+             ══════════════════════════════════════════════════════════════ */}
+          {activeTab === 'solar_forecast' && (
+            <div className="space-y-6 animate-fade-in">
+              <SolarForecastView feederId={selectedFeeder} marketPrice={4.20} />
+            </div>
+          )}
+
+          {activeTab === 'double_auction' && (
+            <div className="space-y-6 animate-fade-in">
+              <DoubleAuctionView clearingPrice={4.15} />
+            </div>
+          )}
+
+          {activeTab === 'iot_meter' && (
+            <div className="space-y-6 animate-fade-in">
+              <IoTMeterView feederId={selectedFeeder} />
+            </div>
+          )}
+
+          {activeTab === 'carbon_impact' && (
+            <div className="space-y-6 animate-fade-in">
+              <CarbonImpactView feederId={selectedFeeder} />
+            </div>
+          )}
+
+          {activeTab === 'blockchain' && (
+            <div className="space-y-6 animate-fade-in">
+              <BlockchainLedgerView
+                blockchainProof={blockchainProof}
+                onOpenProofModal={() => setIsBlockchainOpen(true)}
+              />
+            </div>
+          )}
+
+          {/* ══════════════════════════════════════════════════════════════
               TAB 6: WALLET & BALANCES
              ══════════════════════════════════════════════════════════════ */}
           {activeTab === 'wallet' && (
+
             <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
               <h1 className="text-2xl font-black text-slate-900 tracking-tight">Your Energy Wallet</h1>
               <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">

@@ -145,4 +145,27 @@
     font-family: 'JetBrains Mono', monospace;
     font-variant-numeric: tabular-nums;
   }
+
+  /* ── Flowing Power Flow Animated Lines ────────────────────────────────────── */
+  @keyframes flow-forward {
+    from {
+      stroke-dashoffset: 40;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .animate-power-flow {
+    stroke-dasharray: 6 6;
+    animation: flow-forward 1.2s linear infinite;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+  }
 }
+
