@@ -49,7 +49,7 @@ Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCmd -Windo
 Start-Sleep -Seconds 2
 
 # Simulator (generates meter readings every 15s by default)
-$simCmd = "cd '$Root\backend'; `$env:DEV_MODE='true'; `$env:PYTHONIOENCODING='utf-8'; python -m simulator.meter_simulator"
+$simCmd = "cd '$Root\backend'; `$env:DEV_MODE='true'; `$env:BACKEND_URL='http://localhost:8000'; `$env:PYTHONIOENCODING='utf-8'; python -m simulator.meter_simulator"
 Start-Process powershell -ArgumentList "-NoExit", "-Command", $simCmd -WindowStyle Normal
 
 Start-Sleep -Seconds 1
