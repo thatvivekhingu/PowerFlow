@@ -23,8 +23,8 @@ export default function InvoiceModal({ settlement, isOpen, onClose, onViewBlockc
   const platformFee = 0.50
   const totalAmount = energyCost + wheelingFee + platformFee
 
-  const buyerName = settlement?.buyer_ref ? `Priya Sharma (${settlement.buyer_ref.slice(0, 8)})` : 'Priya Sharma'
-  const sellerName = settlement?.seller_ref ? `Rohit Mehta (${settlement.seller_ref.slice(0, 8)})` : 'Rohit Mehta'
+  const buyerName = settlement?.buyer_ref ? `Consumer Node (${settlement.buyer_ref.slice(0, 8)})` : 'Consumer Node #1024'
+  const sellerName = settlement?.seller_ref ? `Prosumer Cluster (${settlement.seller_ref.slice(0, 8)})` : 'Prosumer Cluster #4401'
 
   const handleDownloadPdf = () => {
     window.print()
@@ -66,23 +66,23 @@ export default function InvoiceModal({ settlement, isOpen, onClose, onViewBlockc
           <div className="grid grid-cols-2 gap-3">
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                PS
+                CN
               </div>
               <div className="overflow-hidden">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Buyer</span>
                 <span className="font-bold text-slate-900 block truncate">{buyerName}</span>
-                <span className="text-[10px] text-slate-500 truncate block">priya@example.com</span>
+                <span className="text-[10px] text-slate-500 truncate block">consumer-1024@powerflow.network</span>
               </div>
             </div>
 
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-100 flex items-center gap-3">
               <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center font-bold text-xs flex-shrink-0">
-                RM
+                PC
               </div>
               <div className="overflow-hidden">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Seller</span>
                 <span className="font-bold text-slate-900 block truncate">{sellerName}</span>
-                <span className="text-[10px] text-slate-500 truncate block">rohit@example.com</span>
+                <span className="text-[10px] text-slate-500 truncate block">cluster-4401@powerflow.network</span>
               </div>
             </div>
           </div>

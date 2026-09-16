@@ -72,9 +72,6 @@ export default function PowerFlowApp() {
     | 'operator'
     | 'carbon_impact'
     | 'blockchain'
-    | 'wallet'
-    | 'notifications'
-    | 'copilot'
   >('dashboard')
 
   
@@ -90,10 +87,10 @@ export default function PowerFlowApp() {
   const [invoiceData, setInvoiceData] = useState({
     tradeId: 'TRD-2026-001234',
     date: 'Jan 15, 2026, 14:23:15',
-    buyerName: 'Priya Sharma',
-    buyerEmail: 'priya@example.com',
-    sellerName: 'Rohit Mehta',
-    sellerEmail: 'rohit@example.com',
+    buyerName: 'Consumer Node #1024',
+    buyerEmail: 'consumer-1024@powerflow.network',
+    sellerName: 'Prosumer Cluster #4401',
+    sellerEmail: 'cluster-4401@powerflow.network',
     energyKwh: 5.0,
     pricePerKwh: 4.20,
     energyCost: 21.00,
@@ -118,97 +115,14 @@ export default function PowerFlowApp() {
     { id: 'ORD-103', quantity: 20, price: 4.60, filled: 25, status: 'Active' },
   ])
 
-  // AI Copilot state
-  const [chatMessages, setChatMessages] = useState<Array<{ sender: 'bot' | 'user'; text: string; details?: any }>>([
-    {
-      sender: 'bot',
-      text: "👋 Hi! I'm your PowerFlow AI Assistant. Here's what I can do for you:\n• Check solar availability in your feeder\n• Get dynamic price recommendations\n• Analyze transformer grid conditions\n• Place verified buy/sell orders (with your confirmation)\n• Explain your DISCOM wheeling fees and savings\n\nWhat would you like to know?",
-    },
-    {
-      sender: 'user',
-      text: 'Can I buy 5 kWh on Feeder 1 right now?',
-    },
-    {
-      sender: 'bot',
-      text: "Here's my analysis:",
-      details: {
-        currentPrice: '₹4.20/kWh (good time to buy)',
-        solarAvailability: 'High (125 kW)',
-        feederLoad: '62% (safe)',
-        recommendedQuantity: '5 kWh',
-        estimatedCost: '₹21.00 (plus ₹1.25 wheeling charge)',
-        showConfirm: true,
-      },
-    },
-  ])
-  const [inputPrompt, setInputPrompt] = useState('')
-  const [isCopilotLoading, setIsCopilotLoading] = useState(false)
-
-  const handleSendMessage = async (customText?: string) => {
-    const textToSend = customText || inputPrompt
-    if (!textToSend.trim()) return
-
-    setChatMessages(prev => [...prev, { sender: 'user', text: textToSend }])
-    if (!customText) setInputPrompt('')
-    setIsCopilotLoading(true)
-
-    try {
-      // Call backend AI copilot endpoint if available, or generate smart contextual response
-      const res = await fetch('http://localhost:8000/api/v1/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: textToSend, feeder_id: selectedFeeder, role }),
-      }).then(r => r.json()).catch(() => null)
-
-      if (res && res.response) {
-        setChatMessages(prev => [...prev, { sender: 'bot', text: res.response }])
-      } else {
-        // High quality fallback compound response
-        setTimeout(() => {
-          if (textToSend.toLowerCase().includes('buy') || textToSend.toLowerCase().includes('order')) {
-            setChatMessages(prev => [
-              ...prev,
-              {
-                sender: 'bot',
-                text: `Verified 5 kWh order on ${selectedFeeder}: Current clearing rate is ₹4.20/kWh. Grid capacity is healthy with 38 MW headroom.`,
-                details: {
-                  currentPrice: '₹4.20/kWh',
-                  solarAvailability: '125 kW available',
-                  feederLoad: '62% (Optimal)',
-                  recommendedQuantity: '5 kWh',
-                  estimatedCost: '₹21.00 + ₹1.25 DISCOM wheeling',
-                  showConfirm: true,
-                },
-              },
-            ])
-          } else {
-            setChatMessages(prev => [
-              ...prev,
-              {
-                sender: 'bot',
-                text: `Analysis for ${selectedFeeder}: Peak solar generation is forecast between 11:00 AM and 2:00 PM with clearing prices expected to dip to ₹4.10/kWh. This is the optimal window to schedule EV charging or battery top-ups.`,
-              },
-            ])
-          }
-          setIsCopilotLoading(false)
-        }, 600)
-        return
-      }
-    } catch {
-      // ignore
-    } finally {
-      setIsCopilotLoading(false)
-    }
-  }
-
   const handleExecuteTrade = (sellerName: string, price: number, kwh: number) => {
     setInvoiceData({
       tradeId: `TRD-2026-${Math.floor(100000 + Math.random() * 900000)}`,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + `, ${new Date().toLocaleTimeString('en-US', { hour12: false })}`,
-      buyerName: role === 'consumer' ? 'Priya Sharma' : role === 'prosumer' ? 'Rohit Mehta' : 'Arjun Singh',
-      buyerEmail: role === 'consumer' ? 'priya@example.com' : role === 'prosumer' ? 'rohit@example.com' : 'arjun@discom.gov.in',
+      buyerName: role === 'consumer' ? 'Consumer Node #1024' : role === 'prosumer' ? 'Prosumer Cluster #4401' : 'DISCOM Substation Node',
+      buyerEmail: role === 'consumer' ? 'consumer-1024@powerflow.network' : role === 'prosumer' ? 'cluster-4401@powerflow.network' : 'operator@discom.gov.in',
       sellerName: sellerName,
-      sellerEmail: `${sellerName.toLowerCase().replace(/\s+/g, '')}@cleanenergy.in`,
+      sellerEmail: `${sellerName.toLowerCase().replace(/[^a-z0-9]/g, '')}@powerflow.network`,
       energyKwh: kwh,
       pricePerKwh: price,
       energyCost: +(kwh * price).toFixed(2),
@@ -223,9 +137,9 @@ export default function PowerFlowApp() {
 
   // Persona profiles
   const currentPersona = {
-    consumer: { name: 'Priya Sharma', roleLabel: 'Consumer', avatar: AVATARS.consumer },
-    prosumer: { name: 'Rohit Mehta', roleLabel: 'Prosumer', avatar: AVATARS.prosumer },
-    operator: { name: 'Arjun Singh', roleLabel: 'DISCOM Operator', avatar: AVATARS.operator },
+    consumer: { name: 'Consumer Node #1024', roleLabel: 'Consumer Node', avatar: AVATARS.consumer },
+    prosumer: { name: 'Prosumer Cluster #4401', roleLabel: 'Prosumer Node', avatar: AVATARS.prosumer },
+    operator: { name: 'DISCOM Feeder Operator', roleLabel: 'Grid Operator', avatar: AVATARS.operator },
   }[role]
 
   return (
@@ -357,42 +271,6 @@ export default function PowerFlowApp() {
               <span>Blockchain Ledger</span>
             </button>
 
-
-            <button
-              onClick={() => setActiveTab('wallet')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'wallet'
-                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
-              }`}
-            >
-              <Wallet className="w-4 h-4" />
-              Wallet
-            </button>
-
-            <button
-              onClick={() => setActiveTab('notifications')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'notifications'
-                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
-              }`}
-            >
-              <Bell className="w-4 h-4" />
-              Notifications
-            </button>
-
-            <button
-              onClick={() => setActiveTab('copilot')}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                activeTab === 'copilot'
-                  ? 'bg-emerald-500 text-white shadow-sm shadow-emerald-500/30'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
-              }`}
-            >
-              <Bot className="w-4 h-4" />
-              AI Copilot
-            </button>
           </nav>
         </div>
 
@@ -474,7 +352,7 @@ export default function PowerFlowApp() {
             </button>
 
             {userDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
+              <div className="absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 z-50 animate-in fade-in zoom-in-95">
                 <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                   Switch Persona
                 </div>
@@ -487,9 +365,9 @@ export default function PowerFlowApp() {
                   className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 flex items-center gap-2.5 font-semibold text-slate-700"
                 >
                   <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image src={AVATARS.consumer} alt="Priya" fill className="object-cover" />
+                    <Image src={AVATARS.consumer} alt="Consumer" fill className="object-cover" />
                   </div>
-                  Priya Sharma (Consumer)
+                  Consumer Node #1024
                 </button>
                 <button
                   onClick={() => {
@@ -500,9 +378,9 @@ export default function PowerFlowApp() {
                   className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 flex items-center gap-2.5 font-semibold text-slate-700"
                 >
                   <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image src={AVATARS.prosumer} alt="Rohit" fill className="object-cover" />
+                    <Image src={AVATARS.prosumer} alt="Prosumer" fill className="object-cover" />
                   </div>
-                  Rohit Mehta (Prosumer)
+                  Prosumer Cluster #4401
                 </button>
                 <button
                   onClick={() => {
@@ -513,9 +391,9 @@ export default function PowerFlowApp() {
                   className="w-full px-3 py-2 text-left text-xs hover:bg-slate-50 flex items-center gap-2.5 font-semibold text-slate-700"
                 >
                   <div className="relative w-6 h-6 rounded-full overflow-hidden">
-                    <Image src={AVATARS.operator} alt="Arjun" fill className="object-cover" />
+                    <Image src={AVATARS.operator} alt="Operator" fill className="object-cover" />
                   </div>
-                  Arjun Singh (DISCOM)
+                  DISCOM Feeder Operator
                 </button>
                 <div className="my-1 border-t border-slate-100" />
                 <button
@@ -539,8 +417,8 @@ export default function PowerFlowApp() {
             <div className="space-y-5 animate-fade-in">
               {/* Greeting */}
               <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Good Morning, Priya!</h1>
-                <p className="text-xs text-slate-500 mt-0.5">Here's what's happening in your clean energy community.</p>
+                <h1 className="text-2xl font-black text-slate-900 tracking-tight">Clean Energy Telemetry & P2P Exchange</h1>
+                <p className="text-xs text-slate-500 mt-0.5">Real-time localized power flow, continuous double-auction clearing, and feeder headroom.</p>
               </div>
 
               {/* 4 Stat Cards Row */}
@@ -922,20 +800,20 @@ export default function PowerFlowApp() {
 
               {/* Producer Cards matching Mockup */}
               <div className="space-y-3.5">
-                {/* Card 1: SunRise Home Solar */}
+                {/* Card 1: SunRise Rooftop Solar Array */}
                 {(marketFilter === 'all' || marketFilter === 'rooftop') && (
                   <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-4">
                     <div className="relative w-full md:w-36 h-28 rounded-xl overflow-hidden shrink-0">
                       <Image
                         src="/images/rooftop_solar.jpg"
-                        alt="SunRise Home Solar"
+                        alt="SunRise Rooftop Solar Array"
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-slate-900">SunRise Home Solar</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">Rohit Mehta</p>
+                      <h3 className="text-base font-bold text-slate-900">SunRise Rooftop Solar Array</h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">Prosumer Cluster #4401</p>
                       <div className="flex flex-wrap items-center gap-2 mt-2.5">
                         <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
                           ★ 4.8 <span className="text-slate-400 font-normal">(120)</span>
@@ -954,7 +832,7 @@ export default function PowerFlowApp() {
                         <span className="text-[10px] font-medium text-slate-400">Available: 50 kWh</span>
                       </div>
                       <button
-                        onClick={() => handleExecuteTrade('Rohit Mehta', 4.20, 5)}
+                        onClick={() => handleExecuteTrade('Prosumer Cluster #4401', 4.20, 5)}
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition-all cursor-pointer"
                       >
                         Buy Now
@@ -963,20 +841,20 @@ export default function PowerFlowApp() {
                   </div>
                 )}
 
-                {/* Card 2: GreenGrid Community Solar Co-op */}
+                {/* Card 2: Sector-4 Community Solar Trust */}
                 {(marketFilter === 'all' || marketFilter === 'community') && (
                   <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-4">
                     <div className="relative w-full md:w-36 h-28 rounded-xl overflow-hidden shrink-0">
                       <Image
                         src="/images/community_solar.jpg"
-                        alt="GreenGrid Community Solar"
+                        alt="Sector-4 Community Solar Trust"
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-slate-900">GreenGrid Community Solar Co-op</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">GreenGrid Cooperative</p>
+                      <h3 className="text-base font-bold text-slate-900">Sector-4 Community Solar Trust</h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">Community Microgrid Co-op</p>
                       <div className="flex flex-wrap items-center gap-2 mt-2.5">
                         <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
                           ★ 4.6 <span className="text-slate-400 font-normal">(95)</span>
@@ -995,7 +873,7 @@ export default function PowerFlowApp() {
                         <span className="text-[10px] font-medium text-slate-400">Available: 100 kWh</span>
                       </div>
                       <button
-                        onClick={() => handleExecuteTrade('GreenGrid Co-op', 4.40, 10)}
+                        onClick={() => handleExecuteTrade('Sector-4 Solar Trust', 4.40, 10)}
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition-all cursor-pointer"
                       >
                         Buy Now
@@ -1004,20 +882,20 @@ export default function PowerFlowApp() {
                   </div>
                 )}
 
-                {/* Card 3: EcoPower Solutions */}
+                {/* Card 3: EcoPower BESS Storage Facility */}
                 {(marketFilter === 'all' || marketFilter === 'battery') && (
                   <div className="bg-white border border-slate-200/90 rounded-2xl p-4 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-4">
                     <div className="relative w-full md:w-36 h-28 rounded-xl overflow-hidden shrink-0">
                       <Image
                         src="/images/battery_storage.jpg"
-                        alt="EcoPower Solutions"
+                        alt="EcoPower BESS Storage Facility"
                         fill
                         className="object-cover"
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-bold text-slate-900">EcoPower Solutions</h3>
-                      <p className="text-xs text-slate-500 font-medium mt-0.5">Anita Verma</p>
+                      <h3 className="text-base font-bold text-slate-900">EcoPower BESS Storage Facility</h3>
+                      <p className="text-xs text-slate-500 font-medium mt-0.5">Battery Energy Storage Node #08</p>
                       <div className="flex flex-wrap items-center gap-2 mt-2.5">
                         <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
                           ★ 4.7 <span className="text-slate-400 font-normal">(76)</span>
@@ -1036,7 +914,7 @@ export default function PowerFlowApp() {
                         <span className="text-[10px] font-medium text-slate-400">Available: 80 kWh</span>
                       </div>
                       <button
-                        onClick={() => handleExecuteTrade('Anita Verma', 4.60, 8)}
+                        onClick={() => handleExecuteTrade('EcoPower BESS #08', 4.60, 8)}
                         className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm shadow-emerald-600/20 transition-all cursor-pointer"
                       >
                         Buy Now
@@ -1418,7 +1296,7 @@ export default function PowerFlowApp() {
                     <div className="p-2.5 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between text-xs">
                       <div>
                         <p className="font-bold text-slate-800">12 kWh • Feeder-03</p>
-                        <p className="text-[10px] text-slate-400">SunRise Home Solar → Consumer 4</p>
+                        <p className="text-[10px] text-slate-400">SunRise Rooftop Array → Consumer Node #1024</p>
                       </div>
                       <button
                         onClick={() => alert('Trade approved by DISCOM operator')}
@@ -1430,7 +1308,7 @@ export default function PowerFlowApp() {
                     <div className="p-2.5 rounded-xl border border-slate-100 bg-slate-50 flex items-center justify-between text-xs">
                       <div>
                         <p className="font-bold text-slate-800">8 kWh • Feeder-07</p>
-                        <p className="text-[10px] text-slate-400">GreenGrid Co-op → Consumer 9</p>
+                        <p className="text-[10px] text-slate-400">Sector-4 Solar Trust → Consumer Node #2048</p>
                       </div>
                       <button
                         onClick={() => alert('Trade approved by DISCOM operator')}
@@ -1441,143 +1319,6 @@ export default function PowerFlowApp() {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════
-              TAB 5: AI COPILOT (Middle-Right Mockup)
-             ══════════════════════════════════════════════════════════════ */}
-          {activeTab === 'copilot' && (
-            <div className="max-w-3xl mx-auto space-y-4 animate-fade-in">
-              <div>
-                <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-                  <Bot className="w-6 h-6 text-emerald-600" /> AI Copilot
-                </h1>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Your intelligent assistant for clean energy trading (Powered by Groq Compound AI).
-                </p>
-              </div>
-
-              {/* Chat Container */}
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm min-h-[460px] flex flex-col justify-between">
-                
-                {/* Messages Feed */}
-                <div className="space-y-4 overflow-y-auto max-h-[400px] pr-1">
-                  {chatMessages.map((msg, i) => (
-                    <div
-                      key={i}
-                      className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {msg.sender === 'bot' && (
-                        <div className="w-8 h-8 rounded-xl bg-emerald-100/80 text-emerald-700 flex items-center justify-center shrink-0">
-                          <Zap className="w-4 h-4 fill-emerald-600" />
-                        </div>
-                      )}
-
-                      <div className={`max-w-md ${msg.sender === 'user' ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-sm p-3.5 text-xs font-medium' : 'space-y-3'}`}>
-                        {msg.sender === 'bot' ? (
-                          <div className="bg-slate-50 border border-slate-200/70 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-800 leading-relaxed">
-                            <div className="whitespace-pre-line">{msg.text}</div>
-
-                            {/* Structured Analysis Card */}
-                            {msg.details && (
-                              <div className="mt-3 p-3 bg-white rounded-xl border border-slate-200/80 space-y-1.5 text-xs">
-                                <div className="flex justify-between">
-                                  <span className="text-slate-500">Current price:</span>
-                                  <span className="font-bold text-slate-900">{msg.details.currentPrice}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-slate-500">Solar availability:</span>
-                                  <span className="font-bold text-emerald-600">{msg.details.solarAvailability}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-slate-500">Feeder load:</span>
-                                  <span className="font-bold text-slate-900">{msg.details.feederLoad}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-slate-500">Recommended quantity:</span>
-                                  <span className="font-bold text-slate-900">{msg.details.recommendedQuantity}</span>
-                                </div>
-                                <div className="flex justify-between pt-1 border-t border-slate-100 font-bold">
-                                  <span className="text-slate-700">Estimated cost:</span>
-                                  <span className="text-emerald-700">{msg.details.estimatedCost}</span>
-                                </div>
-
-                                {msg.details.showConfirm && (
-                                  <div className="pt-2 flex items-center gap-2">
-                                    <button
-                                      onClick={() => handleExecuteTrade('Rohit Mehta', 4.20, 5)}
-                                      className="flex-1 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm cursor-pointer"
-                                    >
-                                      Yes, place order
-                                    </button>
-                                    <button
-                                      onClick={() => setInputPrompt('Adjust quantity to 10 kWh')}
-                                      className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs cursor-pointer"
-                                    >
-                                      No, modify
-                                    </button>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          msg.text
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  {isCopilotLoading && (
-                    <div className="flex items-center gap-2 text-xs text-slate-400">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-                      PowerFlow AI is analyzing grid telemetry...
-                    </div>
-                  )}
-                </div>
-
-                {/* Suggestion Chips & Prompt Input */}
-                <div className="pt-4 border-t border-slate-100 space-y-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    <button
-                      onClick={() => handleSendMessage('Can I buy 5 kWh on Feeder 1 right now?')}
-                      className="px-2.5 py-1 rounded-full bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-[11px] text-slate-600 hover:text-emerald-700 transition-colors"
-                    >
-                      Can I buy 5 kWh on Feeder 1 right now?
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage("What's the best time to sell excess solar?")}
-                      className="px-2.5 py-1 rounded-full bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-[11px] text-slate-600 hover:text-emerald-700 transition-colors"
-                    >
-                      What's the best time to sell excess solar?
-                    </button>
-                    <button
-                      onClick={() => handleSendMessage('Check transformer headroom on Feeder-01')}
-                      className="px-2.5 py-1 rounded-full bg-slate-50 hover:bg-emerald-50 border border-slate-200 text-[11px] text-slate-600 hover:text-emerald-700 transition-colors"
-                    >
-                      Check transformer headroom on Feeder-01
-                    </button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="text"
-                      value={inputPrompt}
-                      onChange={(e) => setInputPrompt(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                      placeholder="Ask me anything about clean energy..."
-                      className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:border-emerald-500 bg-slate-50/50"
-                    />
-                    <button
-                      onClick={() => handleSendMessage()}
-                      className="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors cursor-pointer"
-                    >
-                      <Send className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-
               </div>
             </div>
           )}
@@ -1615,62 +1356,6 @@ export default function PowerFlowApp() {
                 blockchainProof={blockchainProof}
                 onOpenProofModal={() => setIsBlockchainOpen(true)}
               />
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════
-              TAB 6: WALLET & BALANCES
-             ══════════════════════════════════════════════════════════════ */}
-          {activeTab === 'wallet' && (
-
-            <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Your Energy Wallet</h1>
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-6 shadow-sm space-y-4">
-                <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-                  <div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Available Balance</span>
-                    <span className="text-3xl font-black text-slate-900 mt-1 block">₹1,450.00</span>
-                  </div>
-                  <button className="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold text-xs hover:bg-emerald-700 shadow-sm">
-                    + Add Funds
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xs font-bold text-slate-800">Recent Transactions</h3>
-                  <div className="p-3 bg-slate-50 rounded-xl flex justify-between items-center text-xs">
-                    <div>
-                      <p className="font-bold text-slate-800">Solar Purchase - 5 kWh</p>
-                      <p className="text-[10px] text-slate-400">Jan 15, 2026, 14:23</p>
-                    </div>
-                    <span className="font-bold text-rose-600">-₹22.75</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ══════════════════════════════════════════════════════════════
-              TAB 7: NOTIFICATIONS
-             ══════════════════════════════════════════════════════════════ */}
-          {activeTab === 'notifications' && (
-            <div className="max-w-2xl mx-auto space-y-4 animate-fade-in">
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Notifications</h1>
-              <div className="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-sm space-y-3">
-                <div className="p-3 bg-emerald-50/60 border border-emerald-100 rounded-xl flex items-center gap-3">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-                  <div className="text-xs">
-                    <p className="font-bold text-slate-900">Trade Settled on Polygon</p>
-                    <p className="text-slate-500">Your order of 5 kWh with Rohit Mehta completed successfully.</p>
-                  </div>
-                </div>
-                <div className="p-3 bg-amber-50/60 border border-amber-100 rounded-xl flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0" />
-                  <div className="text-xs">
-                    <p className="font-bold text-slate-900">Peak Solar Generation Ahead</p>
-                    <p className="text-slate-500">Forecast indicates 125 kW surplus between 11:00 AM and 2:00 PM.</p>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
 
